@@ -1,0 +1,20 @@
+{
+  "name": "major_project",
+  "version": "1.0.0",
+  "description": "\"major project - backend\"",
+  "keywords": [
+    "major",
+    "project",
+    "backend"
+  ],
+  "license": "ISC",
+  "author": "ansh pandey, adarsh singh",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "devDependencies": {
+    "prettier": "3.8.3"
+  }
+}
