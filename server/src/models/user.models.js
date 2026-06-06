@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { AvailableUserRole } from "../utils/constants.js";
+import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
   {
@@ -62,5 +63,13 @@ const userSchema = new Schema(
   },
   { timestamps: true },
 );
+
+// pre hooks -> before save (password hashing)
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
 
 export const User = mongoose.model("User", userSchema);
