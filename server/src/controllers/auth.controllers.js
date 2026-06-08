@@ -21,16 +21,15 @@ const generateAccessAndRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { email, username, password, fullName, role, village, phone } =
-    req.body;
+  const { email, password, fullName, village } = req.body;
 
-  if (!username || !email || !password)
+  if (!fullName || !email || !password)
     return res
       .status(400)
       .json({ message: "name, email and password are required" });
 
   const existedUser = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ email }],
   });
 
   if (existedUser) {
@@ -38,12 +37,12 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
-    fullName: fullName,
+    fullName,
     email,
     password,
     role: "asha",
     village,
-    phone,
+    isProfileComplete: false,
     mustChangePassword: true,
   });
 
