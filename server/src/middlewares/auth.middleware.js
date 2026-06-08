@@ -29,6 +29,9 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 });
 
 export const requirePHC = asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
   if (req.user.role !== "phc") {
     throw new ApiError(403, "Only PHC staff can perform this action");
   }

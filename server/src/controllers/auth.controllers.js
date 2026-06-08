@@ -82,8 +82,6 @@ const login = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ $or: [{ email }, { username }] });
 
-  console.log("user found", user);
-
   if (!user) {
     throw new ApiError(400, "User does not exists");
   }
@@ -95,9 +93,7 @@ const login = asyncHandler(async (req, res) => {
   }
 
   if (!user.isActive)
-    return res
-      .status(403)
-      .json({ message: "Account deactivated. Contact PHC admin." });
+    throw new ApiError(403, "Account deactivated. Contact PHC admin.");
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user._id,
@@ -122,12 +118,36 @@ const login = asyncHandler(async (req, res) => {
         200,
         {
           user: loggedInUser,
-          accessToken,
-          refreshToken,
         },
         "User logged in successfully",
       ),
     );
 });
 
-export { registerUser, login };
+const logoutUser = asyncHandler(async (req, res) => {
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $unset: {
+        refreshToken: 1,
+      },
+    },
+    {
+      new: true,
+    },
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
+
+export { registerUser, login, logoutUser };
