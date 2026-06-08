@@ -18,13 +18,15 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 const router = Router();
 
 // unsecured routes
-router.route("/register").post(userRegisterValidator(), validate, registerUser);
 router.route("/login").post(userLoginValidator(), validate, login);
 router.route("/refresh-token").post(refreshAccessToken);
 
 //secure routes
+router
+  .route("/register")
+  .post(verifyJWT, requirePHC, userRegisterValidator(), validate, registerUser);
 router.route("/logout").post(verifyJWT, logoutUser);
-router.route("/current-user").post(verifyJWT, getCurrentUser);
+router.route("/current-user").get(verifyJWT, getCurrentUser);
 router
   .route("/change-password")
   .post(

@@ -112,13 +112,13 @@ const login = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("refreshToken", refreshToken, options) // only refresh token in cookie
     .json(
       new ApiResponse(
         200,
         {
           user: loggedInUser,
+          accessToken, // access token in response body
         },
         "User logged in successfully",
       ),
@@ -187,7 +187,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 
   const { accessToken, refreshToken: newRefreshToken } =
-    await generateAccessAndRefreshTokens(user._id);
+    await generateAccessAndRefreshToken(user._id);
 
   user.refreshToken = newRefreshToken;
   await user.save();
@@ -216,8 +216,8 @@ const changePassword = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid old password");
   }
 
+  user.mustChangePassword = false;
   user.password = newPassword;
-
   user.refreshToken = null;
 
   await user.save({ validateBeforeSave: false });
