@@ -266,6 +266,39 @@ const uploadAvatar = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { user }, "Avatar uploaded successfully"));
 });
 
+const completeProfile = asyncHandler(async (req, res) => {
+  const { username, phone } = req.body;
+
+  if (!username || !phone) {
+    throw new ApiError(400, "Username and phone are required");
+  }
+
+  const existingUser = await User.findOne({
+    username,
+    _id: { $ne: req.user._id }, // exclude current user
+  });
+
+  if (existingUser) {
+    throw new ApiError(409, "Username already taken");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        username = username.toLowerCase(),
+        phone,
+        isProfileComplete: true,
+      },
+    },
+    { new: true },
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { user }, "Profile completed successfully"));
+});
+
 export {
   registerUser,
   login,
@@ -274,4 +307,5 @@ export {
   refreshAccessToken,
   changePassword,
   uploadAvatar,
+  completeProfile
 };
