@@ -6,6 +6,7 @@ import {
   refreshAccessToken,
   getCurrentUser,
   changePassword,
+  uploadAvatar,
 } from "../controllers/auth.controllers.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
@@ -14,6 +15,7 @@ import {
   userChangeCurrentPasswordValidator,
 } from "../validators/index.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
 
@@ -35,5 +37,8 @@ router
     validate,
     changePassword,
   );
+router
+  .route("/upload-avatar")
+  .put(verifyJWT, upload.single("avatar"), uploadAvatar);
 
 export default router;

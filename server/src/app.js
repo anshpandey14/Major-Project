@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import fs from "fs";
 
 const app = express();
 
@@ -19,6 +20,11 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+// ensure temp upload folder exists
+if (!fs.existsSync("./public/images")) {
+  fs.mkdirSync("./public/images", { recursive: true });
+}
 
 // import the routes
 

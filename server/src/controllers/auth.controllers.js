@@ -3,6 +3,10 @@ import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import jwt from "jsonwebtoken";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -227,6 +231,41 @@ const changePassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Password changed Successfully"));
 });
 
+const uploadAvatar = asyncHandler(async (req, res) => {
+  const localFilePath = req.file?.path;
+
+  if (!localFilePath) {
+    throw new ApiError(400, "Avatar is required");
+  }
+
+  const avatar = await uploadOnCloudinary(localFilePath);
+
+  if (!avatar) {
+    throw new ApiError(500, "Error while uploading avatar");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        avatar: {
+          url: avatar.secure_url,
+          publicId: avatar.public_id,
+        },
+      },
+    },
+    { new: true },
+  ).select("-password -refreshToken");
+
+  if (req.user?.avatar?.publicId) {
+    await deleteFromCloudinary(req.user.avatar.publicId);
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { user }, "Avatar uploaded successfully"));
+});
+
 export {
   registerUser,
   login,
@@ -234,4 +273,5 @@ export {
   getCurrentUser,
   refreshAccessToken,
   changePassword,
+  uploadAvatar,
 };
