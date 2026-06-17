@@ -16,6 +16,8 @@ import {
 } from "../validators/index.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
+import { completeProfileValidator } from "../validators/index.js";
+import { completeProfile } from "../controllers/auth.controllers.js";
 
 const router = Router();
 
@@ -40,5 +42,8 @@ router
 router
   .route("/upload-avatar")
   .put(verifyJWT, upload.single("avatar"), uploadAvatar);
+router
+  .route("/complete-profile")
+  .put(verifyJWT, completeProfileValidator(), validate, completeProfile);
 
 export default router;

@@ -69,8 +69,30 @@ const userChangeCurrentPasswordValidator = () => {
   ];
 };
 
+const completeProfileValidator = () => {
+  return [
+    body("username")
+      .trim()
+      .toLowerCase()
+      .notEmpty()
+      .withMessage("Username is required")
+      .isLength({ min: 3, max: 20 })
+      .withMessage("Username must be between 3 and 20 characters")
+      .matches(/^[a-zA-Z0-9_]+$/)
+      .withMessage("Username can only contain letters,numbersand underscores"),
+
+    body("phone")
+      .trim()
+      .notEmpty()
+      .withMessage("Phone number is required")
+      .matches(/^[6-9]\d{9}$/)
+      .withMessage("Enter a valid 10-digit Indian mobile number"),
+  ];
+};
+
 export {
   userRegisterValidator,
   userLoginValidator,
   userChangeCurrentPasswordValidator,
+  completeProfileValidator,
 };
