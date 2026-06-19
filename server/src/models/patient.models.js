@@ -1,5 +1,8 @@
 import mongoose, { Schema } from "mongoose";
-import { AvailablePatientGender } from "../utils/constants.js";
+import {
+  AvailablePatientGender,
+  AvailableBloodGroups,
+} from "../utils/constants.js";
 
 const patientSchema = new Schema(
   {
@@ -35,7 +38,7 @@ const patientSchema = new Schema(
     },
     bloodGroup: {
       type: String,
-      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"],
+      enum: AvailableBloodGroups,
       default: "Unknown",
     },
     isPregnant: {

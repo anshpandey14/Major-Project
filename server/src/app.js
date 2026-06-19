@@ -30,9 +30,11 @@ if (!fs.existsSync("./public/images")) {
 
 import healthcheckRouter from "./routes/healthcheck.routes.js";
 import authRouter from "./routes/auth.routes.js";
+import PatientRouter from "./routes/patient.routes.js";
 
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/patient", PatientRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to major-project");
