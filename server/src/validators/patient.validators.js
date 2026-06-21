@@ -57,3 +57,23 @@ export const createPatientValidator = () => {
     body("lmpDate").optional().isISO8601().withMessage("Invalid LMP date"),
   ];
 };
+
+export const getAllPatientsValidator = () => {
+  return [
+    query("page")
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage("Page must be a positive number"),
+
+    query("limit")
+      .optional()
+      .isInt({ min: 1, max: 100 })
+      .withMessage("Limit must be between 1 and 100"),
+
+    query("search")
+      .optional()
+      .trim()
+      .isLength({ max: 50 })
+      .withMessage("search too long"),
+  ];
+};
