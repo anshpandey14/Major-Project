@@ -1,4 +1,5 @@
 import { Patient } from "../models/patient.models.js";
+import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
@@ -47,4 +48,67 @@ const createPatient = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, createdPatient, "Patient created Successfully"));
 });
 
-export { createPatient };
+const getAllPatients = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10, search = "" } = req.query;
+
+  const query = { isActive: true };
+
+  if (req.user.role === "phc") {
+  } else if (req.user.role === "asha") {
+    query.assignedASHA = req.user._id;
+  } else {
+    throw new ApiError(403, "Access Denied");
+  }
+
+  if (search.trim()) {
+    query.$or = [
+      {
+        fullName: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      {
+        phone: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      {
+        village: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+    ];
+  }
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const patients = await Patient.find(query)
+    .skip(skip)
+    .limit(Number(limit))
+    .sort({
+      createdAt: -1,
+    });
+
+  const totalPatients = await Patient.countDocuments(query);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        patients,
+        pagination: {
+          totalPatients,
+          currentPage: Number(page),
+          totalPages: Math.ceil(totalPatients / limit),
+          limit: Number(limit),
+        },
+      },
+      "Patients fetched Successfully",
+    ),
+  );
+});
+
+export { createPatient, getAllPatients };
