@@ -3,10 +3,12 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createPatient,
   getAllPatients,
+  getPatientById,
 } from "../controllers/patient.controllers.js";
 import {
   createPatientValidator,
   getAllPatientsValidator,
+  getPatientByIdValidator,
 } from "../validators/patient.validators.js";
 import { validate } from "../middlewares/validator.middleware.js";
 
@@ -18,4 +20,8 @@ router
 router
   .route("/patients")
   .get(verifyJWT, getAllPatientsValidator(), validate, getAllPatients);
+router
+  .route("/:patientId")
+  .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById);
+
 export default Router;

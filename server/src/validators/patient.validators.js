@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import {
   AvailablePatientGender,
   AvailableBloodGroups,
@@ -76,4 +76,8 @@ export const getAllPatientsValidator = () => {
       .isLength({ max: 50 })
       .withMessage("search too long"),
   ];
+};
+
+export const getPatientByIdValidator = () => {
+  return [param("patientId").isMongoId().withMessage("Invalid patient Id")];
 };
