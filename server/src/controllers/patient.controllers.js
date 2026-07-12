@@ -86,6 +86,7 @@ const getAllPatients = asyncHandler(async (req, res) => {
   const skip = (Number(page) - 1) * Number(limit);
 
   const patients = await Patient.find(query)
+    .populate("assignedASHA", "fullName username")
     .skip(skip)
     .limit(Number(limit))
     .sort({
@@ -111,4 +112,25 @@ const getAllPatients = asyncHandler(async (req, res) => {
   );
 });
 
-export { createPatient, getAllPatients };
+const getPatientById = asyncHandler(async (req, res) => {
+  const { patientId } = req.params;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  }).populate("assignedASHA", "fullName username");
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (req.user.role === "asha" && !patient.assignedASHA.equals(req.user._id)) {
+    throw new ApiError(403, "Access denied");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, patient, "Patient fetched successfully"));
+});
+
+export { createPatient, getAllPatients, getPatientById };
