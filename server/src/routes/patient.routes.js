@@ -4,6 +4,7 @@ import {
   createPatient,
   getAllPatients,
   getPatientById,
+  getStats,
 } from "../controllers/patient.controllers.js";
 import {
   createPatientValidator,
@@ -23,5 +24,5 @@ router
 router
   .route("/:patientId")
   .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById);
-
+router.route("/stats").get(verifyJWT, getStats);
 export default Router;

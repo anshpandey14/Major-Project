@@ -1,3 +1,4 @@
+import { start } from "repl";
 import { Patient } from "../models/patient.models.js";
 import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/api-error.js";
@@ -133,4 +134,103 @@ const getPatientById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, patient, "Patient fetched successfully"));
 });
 
-export { createPatient, getAllPatients, getPatientById };
+const getStats = asyncHandler(async (req, res) => {
+  const query = { isActive: true };
+
+  if (req.user.role === "asha") {
+    query.assignedASHA = req.user._id;
+  } else if (req.user.role !== "phc") {
+    throw new ApiError(403, "Access Denied");
+  }
+
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const [
+    totalPatients,
+    pregnantPatients,
+    malePatients,
+    femalePatients,
+    addedThisMonth,
+    bloodGroupStats,
+    ageGroupStats,
+  ] = await Promise.all([
+    Patient.countDocuments(query),
+    Patient.countDocuments({
+      ...query,
+      isPregnant: true,
+    }),
+    Patient.countDocuments({
+      ...query,
+      gender: "Male",
+    }),
+    Patient.countDocuments({
+      ...query,
+      gender: "Female",
+    }),
+    Patient.countDocuments({
+      ...query,
+      createdAt: { $gte: startOfMonth },
+    }),
+    Patient.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $group: {
+          _id: "$bloodGroup",
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+    ]),
+    Patient.aggreagate([
+      {
+        $match: query,
+      },
+      {
+        $project: {
+          age: {
+            $dateDiff: {
+              startDate: "$dob",
+              endDate: "$$NOW",
+              unit: "year",
+            },
+          },
+        },
+      },
+      {
+        $bucket: {
+          groupBy: "$age",
+          boundaries: [0, 13, 19, 60, 200],
+          default: "Unknown",
+          output: {
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+      },
+    ]),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        totalPatients,
+        pregnantPatients,
+        malePatients,
+        femalePatients,
+        addedThisMonth,
+        bloodGroupStats,
+        ageGroupStats,
+      },
+      "Dashboard Statistics  fetched successfully",
+    ),
+  );
+});
+
+export { createPatient, getAllPatients, getPatientById, getStats };
