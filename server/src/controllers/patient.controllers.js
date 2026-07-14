@@ -233,4 +233,66 @@ const getStats = asyncHandler(async (req, res) => {
   );
 });
 
-export { createPatient, getAllPatients, getPatientById, getStats };
+const getTimeline = asyncHandler(async (req, res) => {
+  // will be implemented afterwards
+});
+
+const updatePatient = asyncHandler(async (req, res) => {
+  const { patientId } = req.params;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (req.user.role === "asha" && !patient.assignedASHA.equals(req.user._id)) {
+    throw new ApiError(403, "Access denied");
+  }
+
+  const allowedFields = [
+    "fullName",
+    "phone",
+    "village",
+    "gender",
+    "dob",
+    "weight",
+    "height",
+    "bloodGroup",
+    "isPregnant",
+    "lmpDate",
+  ];
+
+  const updateData = {};
+
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      updateData[field] = req.body[field];
+    }
+  });
+
+  const updatedPatient = await Patient.findByIdAndUpdate(
+    patientId,
+    { $set: updateData },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatePatient, "Patient updated successfully"));
+});
+
+export {
+  createPatient,
+  getAllPatients,
+  getPatientById,
+  getStats,
+  getTimeline,
+  updatePatient,
+};
