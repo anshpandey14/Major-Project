@@ -5,11 +5,13 @@ import {
   getAllPatients,
   getPatientById,
   getStats,
+  updatePatient,
 } from "../controllers/patient.controllers.js";
 import {
   createPatientValidator,
   getAllPatientsValidator,
   getPatientByIdValidator,
+  updatePatientValidator,
 } from "../validators/patient.validators.js";
 import { validate } from "../middlewares/validator.middleware.js";
 
@@ -23,6 +25,8 @@ router
   .get(verifyJWT, getAllPatientsValidator(), validate, getAllPatients);
 router
   .route("/:patientId")
-  .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById);
+  .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById)
+  .patch(verifyJWT, updatePatientValidator(), validate, updatePatient);
 router.route("/stats").get(verifyJWT, getStats);
+
 export default Router;

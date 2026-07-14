@@ -81,3 +81,56 @@ export const getAllPatientsValidator = () => {
 export const getPatientByIdValidator = () => {
   return [param("patientId").isMongoId().withMessage("Invalid patient Id")];
 };
+
+export const updatePatientValidator = () => {
+  return [
+    param("patientId").isMongoId().withMessage("Invalid patient id"),
+
+    body("fullName")
+      .optional()
+      .trim()
+      .isLength({ min: 3, max: 50 })
+      .withMessage("Full name must be between 3 and 50 characters"),
+
+    body("phone")
+      .optional()
+      .trim()
+      .matches(/^[6-9]\d{9}$/)
+      .withMessage("Enter a valid 10-digit Indian mobile number"),
+
+    body("village")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("Village cannot be empty"),
+
+    body("gender")
+      .optional()
+      .isIn(AvailablePatientGender)
+      .withMessage("Invalid gender"),
+
+    body("dob").optional().isISO8601().withMessage("Invalid date of birth"),
+
+    body("weight")
+      .optional()
+      .isFloat({ min: 0, max: 300 })
+      .withMessage("Weight must be between 0 and 300 kg"),
+
+    body("height")
+      .optional()
+      .isFloat({ min: 0, max: 300 })
+      .withMessage("Height must be between 0 and 300 cm"),
+
+    body("bloodGroup")
+      .optional()
+      .isIn(AvailableBloodGroups)
+      .withMessage("Invalid blood group"),
+
+    body("isPregnant")
+      .optional()
+      .isBoolean()
+      .withMessage("isPregnant must be true or false"),
+
+    body("lmpDate").optional().isISO8601().withMessage("Invalid LMP date"),
+  ];
+};
