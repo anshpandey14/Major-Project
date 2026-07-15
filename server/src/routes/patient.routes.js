@@ -21,15 +21,13 @@ const router = Router();
 
 router
   .route("/patients")
-  .post(verifyJWT, createPatientValidator(), validate, createPatient);
-router
-  .route("/patients")
+  .post(verifyJWT, createPatientValidator(), validate, createPatient)
   .get(verifyJWT, getAllPatientsValidator(), validate, getAllPatients);
+router.route("/stats").get(verifyJWT, getStats);
 router
   .route("/:patientId")
   .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById)
   .patch(verifyJWT, updatePatientValidator(), validate, updatePatient)
   .delete(verifyJWT, deletePatientValidator(), validate, deletePatient);
-router.route("/stats").get(verifyJWT, getStats);
-
-export default Router;
+router().route("/:patientId/timeline").grt();
+export default router;

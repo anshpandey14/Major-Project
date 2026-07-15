@@ -1,4 +1,3 @@
-import { start } from "repl";
 import { Patient } from "../models/patient.models.js";
 import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/api-error.js";
@@ -163,11 +162,11 @@ const getStats = asyncHandler(async (req, res) => {
     }),
     Patient.countDocuments({
       ...query,
-      gender: "Male",
+      gender: "male",
     }),
     Patient.countDocuments({
       ...query,
-      gender: "Female",
+      gender: "female",
     }),
     Patient.countDocuments({
       ...query,
@@ -186,7 +185,7 @@ const getStats = asyncHandler(async (req, res) => {
         },
       },
     ]),
-    Patient.aggreagate([
+    Patient.aggregate([
       {
         $match: query,
       },
@@ -285,13 +284,13 @@ const updatePatient = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, updatePatient, "Patient updated successfully"));
+    .json(new ApiResponse(200, updatedPatient, "Patient updated successfully"));
 });
 
 const deletePatient = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
 
-  const Patient = await Patient.findOne({
+  const patient = await Patient.findOne({
     _id: patientId,
     isActive: true,
   });
@@ -300,7 +299,7 @@ const deletePatient = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Patient not found");
   }
 
-  if (req.user.role === "asha" && !patient.assignedASHA.equals(user.role._id)) {
+  if (req.user.role === "asha" && !patient.assignedASHA.equals(req.user._id)) {
     throw new ApiError(403, "Access denied");
   }
 

@@ -10,16 +10,19 @@ const patientSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      index: true,
     },
     phone: {
       type: String,
       required: true,
       trim: true,
+      index: true,
     },
     village: {
       type: String,
       required: true,
       trim: true,
+      index: true,
     },
     gender: {
       type: String,
@@ -47,18 +50,30 @@ const patientSchema = new Schema(
     },
     lmpDate: {
       type: Date,
+      deafult: null,
     },
     assignedASHA: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     isActive: {
       type: Boolean,
       default: true,
+      index: true,
     },
   },
   { timestamps: true },
 );
+
+// Prevent LMP date for non-pregnant patients
+patientSchema.pre("save", function (next) {
+  if (!this.isPregnant) {
+    this.lmpDate = null;
+  }
+
+  next();
+});
 
 export const Patient = mongoose.model("Patient", patientSchema);
