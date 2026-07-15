@@ -1,140 +1,77 @@
-import { body, param ,query} from "express-validator";
+import { body } from "express-validator";
 import {
-  AvailablePatientGender,
   AvailableBloodGroups,
+  AvailablePatientGender,
 } from "../utils/constants.js";
 
-export const createPatientValidator = () => {
-  return [
-    body("fullName")
-      .trim()
-      .notEmpty()
-      .withMessage("Full name is required")
-      .isLength({ min: 3, max: 50 })
-      .withMessage("Full name nust be between 3 ans 50 characters"),
+import {
+  fullNameValidator,
+  phoneValidator,
+  mongoIdValidator,
+  paginationValidator,
+  dateValidator,
+  numberValidator,
+  enumValidator,
+} from "./common.validators.js";
 
-    body("Phone")
-      .trim()
-      .notEmpty()
-      .withMessage("Phone number is required")
-      .matches(/^[6-9]\d{9}$/)
-      .withMessage("Enter a valid 10-digit Indian mobile number"),
+export const createPatientValidator = () => [
+  fullNameValidator(),
 
-    body("village").trim().notEmpty().withMessage("Village is required"),
+  phoneValidator(),
 
-    body("gender")
-      .notEmpty()
-      .withMessage("Gender is required")
-      .isIn(AvailablePatientGender)
-      .withMessage("Invalid gender"),
+  body("village").trim().notEmpty().withMessage("Village is required"),
 
-    body("dob")
-      .notEmpty()
-      .withMessage("Date of birth is required")
-      .isISO8601()
-      .withMessage("Invalid date of birth"),
+  enumValidator("gender", AvailablePatientGender, true),
 
-    body("weight")
-      .optional()
-      .isFloat({ min: 0, max: 300 })
-      .withMessage("weight must be between 0 and 300 kg"),
+  dateValidator("dob", true),
 
-    body("height")
-      .optional()
-      .isFloat({ min: 0, max: 300 })
-      .withMessage("height must be between 0 and 300 cm"),
+  numberValidator("weight", 0, 300, "kg"),
 
-    body("bloodGroup")
-      .optional()
-      .isIn(AvailableBloodGroups)
-      .withMessage("Invalid blood group"),
+  numberValidator("height", 0, 300, "cm"),
 
-    body("isPregnant")
-      .optional()
-      .isBoolean()
-      .withMessage("isPregnant must be true or false"),
+  enumValidator("bloodGroup", AvailableBloodGroups),
 
-    body("lmpDate").optional().isISO8601().withMessage("Invalid LMP date"),
-  ];
-};
+  body("isPregnant")
+    .optional()
+    .isBoolean()
+    .withMessage("isPregnant must be true or false"),
 
-export const getAllPatientsValidator = () => {
-  return [
-    query("page")
-      .optional()
-      .isInt({ min: 1 })
-      .withMessage("Page must be a positive number"),
+  dateValidator("lmpDate"),
+];
 
-    query("limit")
-      .optional()
-      .isInt({ min: 1, max: 100 })
-      .withMessage("Limit must be between 1 and 100"),
+export const updatePatientValidator = () => [
+  mongoIdValidator("patientId"),
 
-    query("search")
-      .optional()
-      .trim()
-      .isLength({ max: 50 })
-      .withMessage("search too long"),
-  ];
-};
+  fullNameValidator(false),
 
-export const getPatientByIdValidator = () => {
-  return [param("patientId").isMongoId().withMessage("Invalid patient Id")];
-};
+  phoneValidator(false),
 
-export const updatePatientValidator = () => {
-  return [
-    param("patientId").isMongoId().withMessage("Invalid patient id"),
+  body("village")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Village cannot be empty"),
 
-    body("fullName")
-      .optional()
-      .trim()
-      .isLength({ min: 3, max: 50 })
-      .withMessage("Full name must be between 3 and 50 characters"),
+  enumValidator("gender", AvailablePatientGender),
 
-    body("phone")
-      .optional()
-      .trim()
-      .matches(/^[6-9]\d{9}$/)
-      .withMessage("Enter a valid 10-digit Indian mobile number"),
+  dateValidator("dob"),
 
-    body("village")
-      .optional()
-      .trim()
-      .notEmpty()
-      .withMessage("Village cannot be empty"),
+  numberValidator("weight", 0, 300, "kg"),
 
-    body("gender")
-      .optional()
-      .isIn(AvailablePatientGender)
-      .withMessage("Invalid gender"),
+  numberValidator("height", 0, 300, "cm"),
 
-    body("dob").optional().isISO8601().withMessage("Invalid date of birth"),
+  enumValidator("bloodGroup", AvailableBloodGroups),
 
-    body("weight")
-      .optional()
-      .isFloat({ min: 0, max: 300 })
-      .withMessage("Weight must be between 0 and 300 kg"),
+  body("isPregnant")
+    .optional()
+    .isBoolean()
+    .withMessage("isPregnant must be true or false"),
 
-    body("height")
-      .optional()
-      .isFloat({ min: 0, max: 300 })
-      .withMessage("Height must be between 0 and 300 cm"),
+  dateValidator("lmpDate"),
+];
 
-    body("bloodGroup")
-      .optional()
-      .isIn(AvailableBloodGroups)
-      .withMessage("Invalid blood group"),
+export const getPatientByIdValidator = () => [mongoIdValidator("patientId")];
 
-    body("isPregnant")
-      .optional()
-      .isBoolean()
-      .withMessage("isPregnant must be true or false"),
+export const deletePatientValidator = () => [mongoIdValidator("patientId")];
 
-    body("lmpDate").optional().isISO8601().withMessage("Invalid LMP date"),
-  ];
-};
-
-export const deletePatientValidator = () => {
-  return [param("patientId").isMongoId().withMessage("Invalid patient id")];
-};
+export const getAllPatientsValidator = paginationValidator;
