@@ -1,4 +1,4 @@
-import { body, param } from "express-validator";
+import { body, param ,query} from "express-validator";
 import {
   AvailablePatientGender,
   AvailableBloodGroups,
@@ -133,4 +133,8 @@ export const updatePatientValidator = () => {
 
     body("lmpDate").optional().isISO8601().withMessage("Invalid LMP date"),
   ];
+};
+
+export const deletePatientValidator = () => {
+  return [param("patientId").isMongoId().withMessage("Invalid patient id")];
 };

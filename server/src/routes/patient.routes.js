@@ -2,6 +2,7 @@ import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createPatient,
+  deletePatient,
   getAllPatients,
   getPatientById,
   getStats,
@@ -9,6 +10,7 @@ import {
 } from "../controllers/patient.controllers.js";
 import {
   createPatientValidator,
+  deletePatientValidator,
   getAllPatientsValidator,
   getPatientByIdValidator,
   updatePatientValidator,
@@ -26,7 +28,8 @@ router
 router
   .route("/:patientId")
   .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById)
-  .patch(verifyJWT, updatePatientValidator(), validate, updatePatient);
+  .patch(verifyJWT, updatePatientValidator(), validate, updatePatient)
+  .delete(verifyJWT, deletePatientValidator(), validate, deletePatient);
 router.route("/stats").get(verifyJWT, getStats);
 
 export default Router;
