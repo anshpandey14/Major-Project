@@ -288,6 +288,30 @@ const updatePatient = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updatePatient, "Patient updated successfully"));
 });
 
+const deletePatient = asyncHandler(async (req, res) => {
+  const { patientId } = req.params;
+
+  const Patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (req.user.role === "asha" && !patient.assignedASHA.equals(user.role._id)) {
+    throw new ApiError(403, "Access denied");
+  }
+
+  patient.isActive = false;
+  await Patient.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Patient deleted successfully"));
+});
+
 export {
   createPatient,
   getAllPatients,
@@ -295,4 +319,5 @@ export {
   getStats,
   getTimeline,
   updatePatient,
+  deletePatient
 };
