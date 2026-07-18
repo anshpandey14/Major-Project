@@ -29,5 +29,6 @@ router
   .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById)
   .patch(verifyJWT, updatePatientValidator(), validate, updatePatient)
   .delete(verifyJWT, deletePatientValidator(), validate, deletePatient);
-router().route("/:patientId/timeline").grt();
+router().route("/:patientId/timeline").get();
+
 export default router;
