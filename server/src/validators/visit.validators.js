@@ -4,6 +4,7 @@ import {
   mongoIdValidator,
   dateValidator,
   numberValidator,
+  paginationValidator,
 } from "../validators/common.validators.js";
 
 export const createVisitValidator = () => [
@@ -27,11 +28,16 @@ export const createVisitValidator = () => [
     .isLength({ max: 500 })
     .withMessage("Additional symptoms cannot exceed 500 characters"),
 
-  bosy("notes")
+  body("notes")
     .optional()
     .trim()
     .isLength({ max: 1000 })
     .withMessage("Notes cannot exceed 1000 characters"),
 
   dateValidator("followUpDate"),
+];
+
+export const getAllVisitsValidators = () => [
+  mongoIdValidator("patientId"),
+  ...paginationValidator(),
 ];
