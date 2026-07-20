@@ -41,3 +41,8 @@ export const getAllVisitsValidators = () => [
   mongoIdValidator("patientId"),
   ...paginationValidator(),
 ];
+
+export const getVisitByIdValidator = () => [
+  mongoIdValidator("patientId"),
+  mongoIdValidator("visitId"),
+];
