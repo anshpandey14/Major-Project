@@ -96,4 +96,42 @@ const getAllVisits = asyncHandler(async (req, res) => {
   );
 });
 
-export { createVisit, getAllVisits };
+const getVisitById = asyncHandler(async (req, res) => {
+  const { patientId, visitId } = req.params;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (
+    req.user.role === UserRolesEnum.ASHA &&
+    patient.assignedASHA.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(
+      403,
+      "You are not authorized to accedd this patient's visit",
+    );
+  }
+
+  const visit = await Visit.findOne({
+    _id: visitId,
+    patient: patientId,
+  })
+    .populate("patient", "fullName phone village gender")
+    .populate("conductedBy", "fullName username");
+
+  if (!visit) {
+    throw new ApiError(404, "Visit not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, visit, "Visit fetched successfully"));
+});
+
+export { createVisit, getAllVisits, getVisitById };
