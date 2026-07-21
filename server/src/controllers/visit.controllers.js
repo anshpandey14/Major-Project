@@ -121,6 +121,7 @@ const getVisitById = asyncHandler(async (req, res) => {
   const visit = await Visit.findOne({
     _id: visitId,
     patient: patientId,
+    isActive: true,
   })
     .populate("patient", "fullName phone village gender")
     .populate("conductedBy", "fullName username");
@@ -134,4 +135,43 @@ const getVisitById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, visit, "Visit fetched successfully"));
 });
 
-export { createVisit, getAllVisits, getVisitById };
+const updateVisit = asyncHandler(async (req, res) => {
+  const { patientId, visitId } = req.params;
+
+  const visit = await Visit.findOne({
+    _id: visitId,
+    patient: patientId,
+    isActive: true,
+  });
+
+  if (!visit) {
+    throw new ApiError(404, "Visit not found");
+  }
+
+  if (visit.conductedBy.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "You are not authorized to update this visit");
+  }
+
+  const allowedFields = [
+    "visitDate",
+    "weight",
+    "symptoms",
+    "additionalSymptoms",
+    "notes",
+    "followUpDate",
+  ];
+
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      visit[field] = req.body[field];
+    }
+  });
+
+  await visit.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, visit, "Visit updated successfully"));
+});
+
+export { createVisit, getAllVisits, getVisitById, updateVisit };
