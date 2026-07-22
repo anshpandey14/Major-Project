@@ -35,6 +35,29 @@ export const VisitSymptomsEnum = {
   BLEEDING: "bleeding",
 };
 
+export const VaccineEnum = {
+  // Child Vaccines
+  BCG: "BCG",
+  OPV: "OPV",
+  HEPATITIS_B: "Hepatitis B",
+  DPT: "DPT",
+  MEASLES: "Measles",
+  VITAMIN_A: "Vitamin A",
+
+  // Maternal Vaccines
+  TT: "TT",
+};
+
+export const VaccinationStatusEnum = {
+  PENDING: "pending",
+  COMPLETED: "completed",
+  OVERDUE: "overdue",
+};
+
+export const AvailableVaccinationStatus = Object.values(VaccinationStatusEnum);
+
+export const AvailableVaccines = Object.values(VaccineEnum);
+
 export const AvailableVisitSymptoms = Object.values(VisitSymptomsEnum);
 
 export const AvailableBloodGroups = Object.values(PatientBloodGroupEnum);
