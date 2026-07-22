@@ -78,3 +78,8 @@ export const updateVisitValidator = () => {
 
   dateValidator("followUpDate");
 };
+
+export const deleteVisitValidator = () => [
+  mongoIdValidator("patientId"),
+  mongoIdValidator("visitId"),
+];

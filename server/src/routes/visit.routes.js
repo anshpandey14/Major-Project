@@ -3,6 +3,7 @@ import { validate } from "../middlewares/validator.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createVisitValidator,
+  deleteVisitValidator,
   getAllVisitsValidators,
   getVisitByIdValidator,
   updateVisitValidator,
@@ -12,6 +13,7 @@ import {
   getAllVisits,
   getVisitById,
   updateVisit,
+  deleteVisit,
 } from "../controllers/visit.controllers.js";
 
 const router = Router();
@@ -23,6 +25,7 @@ router
 router
   .route("/:patientId/:visitId")
   .get(verifyJWT, getVisitByIdValidator(), validate, getVisitById)
-  .put(verifyJWT, updateVisitValidator(), validate, updateVisit);
+  .put(verifyJWT, updateVisitValidator(), validate, updateVisit)
+  .delete(verifyJWT, deleteVisitValidator(), validate, deleteVisit);
 
 export default router;
