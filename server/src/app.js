@@ -36,7 +36,7 @@ import VisitRouter from "./routes/visit.routes.js";
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/patient", PatientRouter);
-app.use("/api/v1/visit");
+app.use("/api/v1/visit",VisitRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to major-project");

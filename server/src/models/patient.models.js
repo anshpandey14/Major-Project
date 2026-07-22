@@ -50,7 +50,7 @@ const patientSchema = new Schema(
     },
     lmpDate: {
       type: Date,
-      deafult: null,
+      default: null,
     },
     assignedASHA: {
       type: Schema.Types.ObjectId,

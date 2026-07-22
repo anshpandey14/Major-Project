@@ -299,12 +299,8 @@ const deletePatient = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Patient not found");
   }
 
-  if (req.user.role === "asha" && !patient.assignedASHA.equals(req.user._id)) {
-    throw new ApiError(403, "Access denied");
-  }
-
   patient.isActive = false;
-  await Patient.save();
+  await patient.save();
 
   return res
     .status(200)
@@ -318,5 +314,5 @@ export {
   getStats,
   getTimeline,
   updatePatient,
-  deletePatient
+  deletePatient,
 };

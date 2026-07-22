@@ -7,17 +7,17 @@ import {
   getCurrentUser,
   changePassword,
   uploadAvatar,
+  completeProfile,
 } from "../controllers/auth.controllers.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
   userRegisterValidator,
   userLoginValidator,
   userChangeCurrentPasswordValidator,
-} from "../validators/index.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+  completeProfileValidator,
+} from "../validators/user.validators.js";
+import { verifyJWT, requirePHC } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
-import { completeProfileValidator } from "../validators/index.js";
-import { completeProfile } from "../controllers/auth.controllers.js";
 
 const router = Router();
 

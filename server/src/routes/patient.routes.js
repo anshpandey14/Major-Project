@@ -7,6 +7,7 @@ import {
   getPatientById,
   getStats,
   updatePatient,
+  getTimeline,
 } from "../controllers/patient.controllers.js";
 import {
   createPatientValidator,
@@ -20,7 +21,7 @@ import { validate } from "../middlewares/validator.middleware.js";
 const router = Router();
 
 router
-  .route("/patients")
+  .route("/")
   .post(verifyJWT, createPatientValidator(), validate, createPatient)
   .get(verifyJWT, getAllPatientsValidator(), validate, getAllPatients);
 router.route("/stats").get(verifyJWT, getStats);
@@ -29,6 +30,6 @@ router
   .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById)
   .patch(verifyJWT, updatePatientValidator(), validate, updatePatient)
   .delete(verifyJWT, deletePatientValidator(), validate, deletePatient);
-router().route("/:patientId/timeline").get();
+router.route("/:patientId/timeline").get();
 
 export default router;

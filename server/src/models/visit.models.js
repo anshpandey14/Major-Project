@@ -1,4 +1,4 @@
-import mongoosee, { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { AvailableVisitSymptoms } from "../utils/constants.js";
 
 const visitSchema = new Schema(
@@ -27,7 +27,7 @@ const visitSchema = new Schema(
     },
     symptoms: [
       {
-        type: string,
+        type: String,
         enum: AvailableVisitSymptoms,
       },
     ],
@@ -40,7 +40,7 @@ const visitSchema = new Schema(
     notes: {
       type: String,
       trim: true,
-      maxlength: 1000,
+      maxLength: 1000,
       default: "",
     },
     followUpDate: {

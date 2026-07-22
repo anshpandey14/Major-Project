@@ -17,7 +17,7 @@ const createVisit = asyncHandler(async (req, res) => {
     followUpDate,
   } = req.body;
 
-  const existingPatient = await Patient.fondOne({
+  const existingPatient = await Patient.findOne({
     _id: patientId,
     assignedASHA: req.user._id,
     isActive: true,
@@ -76,7 +76,7 @@ const getAllVisits = asyncHandler(async (req, res) => {
       .skip(skip)
       .limit(limit),
 
-    Visit.countDocuments({ patient: patientId }),
+    Visit.countDocuments({ patient: patientId, isActive: true }),
   ]);
 
   return res.status(200).json(
@@ -195,4 +195,4 @@ const deleteVisit = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, null, "visit deleted Successfully"));
 });
 
-export { createVisit, getAllVisits, getVisitById, updateVisit };
+export { createVisit, getAllVisits, getVisitById, updateVisit, deleteVisit };

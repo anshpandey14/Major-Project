@@ -29,9 +29,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const { email, password, fullName, village } = req.body;
 
   if (!fullName || !email || !password)
-    return res
-      .status(400)
-      .json({ message: "name, email and password are required" });
+    throw new ApiError(400, "name, email and password are required");
 
   const existedUser = await User.findOne({
     $or: [{ email }],
@@ -63,7 +61,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .status(201)
     .json(
       new ApiResponse(
-        200,
+        201,
         { user: createdUser },
         "ASHA account created successfully",
       ),
@@ -71,11 +69,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  console.log("login started");
-
   const { email, username, password } = req.body;
-
-  console.log(email, password);
 
   if (!email && !username) {
     throw new ApiError(400, "Email or username is required");
@@ -193,8 +187,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken: newRefreshToken } =
     await generateAccessAndRefreshToken(user._id);
 
-  user.refreshToken = newRefreshToken;
-  await user.save();
+  // user.refreshToken = newRefreshToken;
+  // await user.save();
 
   const options = {
     httpOnly: true,
@@ -204,9 +198,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", newRefreshToken, options)
-    .json(new ApiResponse(200, { userId: user._id }, "Access token refreshed"));
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken, userId: user._id },
+        "Access token refreshed",
+      ),
+    );
 });
 
 const changePassword = asyncHandler(async (req, res) => {
@@ -214,10 +213,18 @@ const changePassword = asyncHandler(async (req, res) => {
 
   const user = await User.findById(req.user?._id);
 
+  if (!oldPassword || !newPassword || !confirmPassword) {
+    throw new ApiError(400, "All password fields are required");
+  }
+
   const isPasswordValid = await user.isPasswordCorrect(oldPassword);
 
   if (!isPasswordValid) {
     throw new ApiError(400, "Invalid old password");
+  }
+
+  if (newPassword !== confirmPassword) {
+    throw new ApiError(400, "Passwords do not match");
   }
 
   user.mustChangePassword = false;
@@ -226,8 +233,15 @@ const changePassword = asyncHandler(async (req, res) => {
 
   await user.save({ validateBeforeSave: false });
 
+  const options = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  };
+
   return res
     .status(200)
+    .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "Password changed Successfully"));
 });
 
@@ -244,22 +258,22 @@ const uploadAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Error while uploading avatar");
   }
 
+  if (req.user?.avatar?.localPath) {
+    await deleteFromCloudinary(req.user.avatar.localPath);
+  }
+
   const user = await User.findByIdAndUpdate(
     req.user._id,
     {
       $set: {
         avatar: {
           url: avatar.secure_url,
-          publicId: avatar.public_id,
+          localPath: avatar.public_id,
         },
       },
     },
     { new: true },
   ).select("-password -refreshToken");
-
-  if (req.user?.avatar?.publicId) {
-    await deleteFromCloudinary(req.user.avatar.publicId);
-  }
 
   return res
     .status(200)
@@ -286,7 +300,7 @@ const completeProfile = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: {
-        username = username.toLowerCase(),
+        username: username.toLowerCase(),
         phone,
         isProfileComplete: true,
       },
@@ -307,5 +321,5 @@ export {
   refreshAccessToken,
   changePassword,
   uploadAvatar,
-  completeProfile
+  completeProfile,
 };
