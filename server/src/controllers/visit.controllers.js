@@ -174,4 +174,25 @@ const updateVisit = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, visit, "Visit updated successfully"));
 });
 
+const deleteVisit = asyncHandler(async (req, res) => {
+  const { patientId, visitId } = req.params;
+
+  const visit = await Visit.findOne({
+    _id: visitId,
+    patient: patientId,
+    isActive: true,
+  });
+
+  if (!visit) {
+    throw new ApiError(404, "Visit not found");
+  }
+
+  visit.isActive = false;
+  await visit.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "visit deleted Successfully"));
+});
+
 export { createVisit, getAllVisits, getVisitById, updateVisit };
