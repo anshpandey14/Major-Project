@@ -3,7 +3,7 @@ import { Vaccination } from "../models/vaccination.models.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
-import { VaccinationStatusEnum } from "../utils/constants.js";
+import { UserRolesEnum, VaccinationStatusEnum } from "../utils/constants.js";
 
 const createVaccination = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
@@ -49,4 +49,61 @@ const createVaccination = asyncHandler(async (req, res) => {
     );
 });
 
-export { createVaccination };
+const getAllVaccinations = asuncHandler(async (req, res) => {
+  const { patientId } = req.params;
+
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (
+    req.user.role === UserRolesEnum.ASHA &&
+    patient.assignedASHA.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(
+      403,
+      "you are not authorized to accedd this patient's vaccinations",
+    );
+  }
+
+  const filter = {
+    patient: patientId,
+    isActive: true,
+  };
+
+  const [vaccinations, totalVaccinations] = await Promise.all([
+    Vaccination.find(filter)
+      .populate("administeredBy", "fullName username")
+      .sort({ vaccinationDate: -1 })
+      .skip(skip)
+      .limit(limit),
+    Vaccination.countDocuments(filter),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        vaccinations,
+        pagination: {
+          page,
+          limit,
+          totalVaccinations,
+          totalPage: Math.ceil(totalVaccinations / limit),
+        },
+      },
+      "Vaccinations fetched successfully",
+    ),
+  );
+});
+
+export { createVaccination, getAllVaccinations };
