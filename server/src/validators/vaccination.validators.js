@@ -3,6 +3,7 @@ import {
   dateValidator,
   mongoIdValidator,
   numberValidator,
+  paginationValidator,
 } from "../validators/common.validators.js";
 import { AvailableVaccines } from "../utils/constants.js";
 import { ApiError } from "../utils/api-error.js";
@@ -41,4 +42,9 @@ export const createVaccinationValidator = () => [
       .isLength({ max: 1000 })
       .withMessage("Notes cannot excedd 1000 characters"),
   ),
+];
+
+export const getAllVaccinationsValidator = () => [
+  mongoIdValidator("patientId"),
+  ...paginationValidator(),
 ];
