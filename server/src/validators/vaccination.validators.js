@@ -48,3 +48,8 @@ export const getAllVaccinationsValidator = () => [
   mongoIdValidator("patientId"),
   ...paginationValidator(),
 ];
+
+export const getVaccinationByIdValidator = () => [
+  mongoIdValidator("patientId"),
+  mongoIdValidator("vaccinationId"),
+];
