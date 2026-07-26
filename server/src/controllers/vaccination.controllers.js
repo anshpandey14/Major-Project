@@ -106,4 +106,45 @@ const getAllVaccinations = asuncHandler(async (req, res) => {
   );
 });
 
-export { createVaccination, getAllVaccinations };
+const getVaccinationById = asyncHandler(async (req, res) => {
+  const { patientId, vaccinationId } = req.params;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (
+    req.user.role === UserRolesEnum.ASHA &&
+    patient.assignedASHA.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(
+      403,
+      "You are not allowed to access this patient's vaccinations",
+    );
+  }
+
+  const vaccination = await Vaccination.findOne({
+    _id: vaccinationId,
+    patient: patientId,
+    isActive: true,
+  })
+    .populate("patient", "fullName phone village gender")
+    .populate("administeredBy", "fullName username");
+
+  if (!vaccination) {
+    throw new ApiError(404, "vaccination record not found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, vaccination, "Vaccination fetched successfully"),
+    );
+});
+
+export { createVaccination, getAllVaccinations, getVaccinationById };
