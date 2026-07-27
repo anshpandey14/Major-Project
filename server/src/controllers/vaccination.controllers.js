@@ -147,4 +147,64 @@ const getVaccinationById = asyncHandler(async (req, res) => {
     );
 });
 
-export { createVaccination, getAllVaccinations, getVaccinationById };
+const updateVaccination = asyncHandler(async (req, res) => {
+  const { patientId, vaccinationId } = req.params;
+
+  const vaccination = await Vaccination.findOne({
+    _id: vaccinationId,
+    patient: patientId,
+    isActive: true,
+  });
+
+  if (!vaccination) {
+    throw new ApiError(404, "Vaccination record not found");
+  }
+
+  if (vaccination.administeredBy.toString() !== req.user._id.toString()) {
+    throw new ApiError(
+      403,
+      "You are not authorized to update this vaccination",
+    );
+  }
+
+  const allowedFields = [
+    "vaccine",
+    "customVaccine",
+    "doseNumber",
+    "vaccinationDate",
+    "nextDueDate",
+    "status",
+    "notes",
+  ];
+
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      vaccination[field] = req.body[field];
+    }
+  });
+
+  if (!vaccination.vaccine && !vaccination.customVaccine?.trim()) {
+    throw new ApiError(400, "Either vaccine or customVaccine is required");
+  }
+
+  if (
+    vaccination.status === VaccinationStatusEnum.PENDING &&
+    vaccination.nextDueDate &&
+    vacciantion.nextDueDate < new Date()
+  ) {
+    vaccination.status = VaccinationStatusEnum.OVERDUE;
+  }
+
+  await vaccination.save();
+
+  return Response.status(200).json(
+    new ApiResponse(200, vaccination, "vaccination updated successfully"),
+  );
+});
+
+export {
+  createVaccination,
+  getAllVaccinations,
+  getVaccinationById,
+  updateVaccination,
+};
