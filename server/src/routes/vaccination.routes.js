@@ -5,11 +5,13 @@ import {
   createVaccination,
   getAllVaccinations,
   getVaccinationById,
+  updateVaccination,
 } from "../controllers/vaccination.controllers.js";
 import {
   createVaccinationValidator,
   getAllVaccinationsValidator,
   getVaccinationByIdValidator,
+  updateVaccinationValidator,
 } from "../validators/vaccination.validators.js";
 
 const router = Router();
@@ -21,6 +23,7 @@ router
 
 router
   .route(":/patientId:/vaccinationId")
-  .get(verifyJWT, getVaccinationByIdValidator(), validate, getVaccinationById);
+  .get(verifyJWT, getVaccinationByIdValidator(), validate, getVaccinationById)
+  .put(verifyJWT, updateVaccinationValidator(), validate, updateVaccination);
 
 export default router;
