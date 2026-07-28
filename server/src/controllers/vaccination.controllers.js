@@ -202,9 +202,33 @@ const updateVaccination = asyncHandler(async (req, res) => {
   );
 });
 
+const deleteVaccination = asyncHandler(async (req, res) => {
+  const { patientId, vaccinationId } = req.params;
+
+  const vaccination = await vacciantion.findOne({
+    _id: vaccinationId,
+    patient: patientId,
+    isActive: true,
+  });
+
+  if (!vaccination) {
+    throw new ApiError(404, "vacciantion record not found");
+  }
+
+  vaccination.isActive = false;
+  await vaccination.save();
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, null, "Vaccination record deleted successfully"),
+    );
+});
+
 export {
   createVaccination,
   getAllVaccinations,
   getVaccinationById,
   updateVaccination,
+  deleteVaccination,
 };
