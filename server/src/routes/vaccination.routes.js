@@ -3,12 +3,14 @@ import { validate } from "../middlewares/validator.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createVaccination,
+  deleteVaccination,
   getAllVaccinations,
   getVaccinationById,
   updateVaccination,
 } from "../controllers/vaccination.controllers.js";
 import {
   createVaccinationValidator,
+  deleteVaccinationValidator,
   getAllVaccinationsValidator,
   getVaccinationByIdValidator,
   updateVaccinationValidator,
@@ -24,6 +26,7 @@ router
 router
   .route(":/patientId:/vaccinationId")
   .get(verifyJWT, getVaccinationByIdValidator(), validate, getVaccinationById)
-  .put(verifyJWT, updateVaccinationValidator(), validate, updateVaccination);
+  .put(verifyJWT, updateVaccinationValidator(), validate, updateVaccination)
+  .delete(verifyJWT, deleteVaccinationValidator(), validate, deleteVaccination);
 
 export default router;

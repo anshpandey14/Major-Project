@@ -99,3 +99,8 @@ export const updateVaccinationValidator = () => [
     return true;
   }),
 ];
+
+export const deleteVaccinationValidator = () => [
+  mongoIdValidator("patientId"),
+  mongoIdValidator("vaccinationId"),
+];
