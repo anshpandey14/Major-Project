@@ -225,10 +225,80 @@ const deleteVaccination = asyncHandler(async (req, res) => {
     );
 });
 
+const getVaccinationStats = asyncHandler(async (req, res) => {
+  const today = new Date();
+
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  const match = { isActive: true };
+
+  if (req.user.role === UserRolesEnum.ASHA) {
+    match.administeredBy = req.user._id;
+  }
+
+  const [totalVaccinationsThisMonth, vaccineCounts, statusCount] =
+    await Promise.all([
+      Vaccination.countDocuments({
+        ...match,
+        vaccinationDate: { $gte: startOfMonth, $lt: endOfMonth },
+      }),
+
+      Vaccination.aggregate([
+        {
+          $match: match,
+        },
+        {
+          $group: {
+            _id: {
+              $ifNull: ["$vaccine", "$customVaccine"],
+            },
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $sort: {
+            count: -1,
+          },
+        },
+      ]),
+
+      Vaccination.aggregate([
+        {
+          $match: match,
+        },
+        {
+          $group: {
+            _id: "$status",
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+      ]),
+    ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        totalVaccinationsThisMonth,
+        vaccineCounts,
+        statusCounts,
+      },
+      "Vaccination statistics fetched successfully",
+    ),
+  );
+});
+
 export {
   createVaccination,
   getAllVaccinations,
   getVaccinationById,
   updateVaccination,
   deleteVaccination,
+  getVaccinationStats,
 };

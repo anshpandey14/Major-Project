@@ -6,6 +6,7 @@ import {
   deleteVaccination,
   getAllVaccinations,
   getVaccinationById,
+  getVaccinationStats,
   updateVaccination,
 } from "../controllers/vaccination.controllers.js";
 import {
@@ -28,5 +29,7 @@ router
   .get(verifyJWT, getVaccinationByIdValidator(), validate, getVaccinationById)
   .put(verifyJWT, updateVaccinationValidator(), validate, updateVaccination)
   .delete(verifyJWT, deleteVaccinationValidator(), validate, deleteVaccination);
+
+router.route("/stats").get(verifyJWT, validate, getVaccinationStats);
 
 export default router;
