@@ -294,6 +294,52 @@ const getVaccinationStats = asyncHandler(async (req, res) => {
   );
 });
 
+const getOverdueVaccinations = asyncHandler(async (req, res) => {
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const filter = {
+    isActive: true,
+    nextDueDate: {
+      $lt: new Date(),
+    },
+    status: {
+      $ne: VaccinationStatusEnum.COMPLETED,
+    },
+  };
+
+  if ((req.user, role === UserRolesEnum.ASHA)) {
+    filter.administeredBy = req.user._id;
+  }
+
+  const [vaccinations, totalVaccinations] = await Promise.all([
+    Vaccination.find(filter)
+      .populate("patient", "fullName phone village")
+      .populate("administeredBy", "fullName username")
+      .skip(skip)
+      .limit(limit),
+
+    Vaccination.countDocuments(filter),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        vaccinations,
+        pagination: {
+          page,
+          limit,
+          totalVaccinations,
+          totalPages: Math.ceil(totalVaccinations / limit),
+        },
+      },
+      "Overdue vaccinations fetched successfully",
+    ),
+  );
+});
+
 export {
   createVaccination,
   getAllVaccinations,
@@ -301,4 +347,5 @@ export {
   updateVaccination,
   deleteVaccination,
   getVaccinationStats,
+  getOverdueVaccinations,
 };
