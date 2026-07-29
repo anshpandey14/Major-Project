@@ -5,6 +5,7 @@ import {
   createVaccination,
   deleteVaccination,
   getAllVaccinations,
+  getOverdueVaccinations,
   getVaccinationById,
   getVaccinationStats,
   updateVaccination,
@@ -13,6 +14,7 @@ import {
   createVaccinationValidator,
   deleteVaccinationValidator,
   getAllVaccinationsValidator,
+  getOverdueVaccinationsValidator,
   getVaccinationByIdValidator,
   updateVaccinationValidator,
 } from "../validators/vaccination.validators.js";
@@ -31,5 +33,14 @@ router
   .delete(verifyJWT, deleteVaccinationValidator(), validate, deleteVaccination);
 
 router.route("/stats").get(verifyJWT, validate, getVaccinationStats);
+
+router
+  .route("/overdue")
+  .get(
+    verifyJWT,
+    getOverdueVaccinationsValidator(),
+    validate,
+    getOverdueVaccinations,
+  );
 
 export default router;

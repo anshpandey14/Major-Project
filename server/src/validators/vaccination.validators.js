@@ -104,3 +104,5 @@ export const deleteVaccinationValidator = () => [
   mongoIdValidator("patientId"),
   mongoIdValidator("vaccinationId"),
 ];
+
+export const getOverdueVaccinationsValidator = () => [...paginationValidator()];
