@@ -3,6 +3,7 @@ import { ANC } from "../models/anc.models.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
+import { UserRolesEnum } from "../utils/constants.js";
 
 const createAnc = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
@@ -61,4 +62,62 @@ const createAnc = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, ancRecord, "ANC record created successfully"));
 });
 
-export { createAnc };
+const getAllANC = asyncHandler(async (req, res) => {
+  const { patientId } = req.params;
+
+  const limit = Number(req.query.limit) || 10;
+  const page = NUmber(req.query.page) || 1;
+  const skip = (page - 1) * limit;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (
+    req.user.role === UserRolesEnum.ASHA &&
+    patient.assignedASHA.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(
+      403,
+      "You are not authorized to access this patient's anc records",
+    );
+  }
+
+  const filter = {
+    patient: patientId,
+    isActive: true,
+  };
+
+  const [ancRecords, totalRecords] = await Promise.all([
+    ANC.find(filter)
+      .populate("conductedBy", "fullName username")
+      .sort({ visitDate: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    ANC.countDocuments(filter),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        ancRecords,
+        pagination: {
+          page,
+          limit,
+          totalRecords,
+          totalPages: Math.ceil(totalRecords / limit),
+        },
+      },
+      "ANC records fetched successfully",
+    ),
+  );
+});
+
+export { createAnc, getAllANC };
