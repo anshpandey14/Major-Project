@@ -3,6 +3,7 @@ import {
   dateValidator,
   mongoIdValidator,
   numberValidator,
+  paginationValidator,
 } from "./common.validators.js";
 
 export const createANCValidator = () => {
@@ -35,3 +36,8 @@ export const createANCValidator = () => {
       .withMessage("Message cannot exceed 1000 charaters"),
   ];
 };
+
+export const getAllANCValidator = () => [
+  mongoIdValidator("patientId"),
+  ...paginationValidator(),
+];
