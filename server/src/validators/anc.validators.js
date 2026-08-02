@@ -46,3 +46,27 @@ export const getANCByIdValidator = () => [
   mongoIdValidator("patientId"),
   mongoIdValidator("ancId"),
 ];
+
+export const updateANCValidator = () => [
+  mongoIdValidator("patientId"),
+  mongoIdValidator("ancId"),
+  dateValidator("visitDate"),
+  numberValidator("gestationalWeek", 1, 42),
+  numberValidator("weight", 20, 200),
+  body("bloodPressure.systolic")
+    .optional()
+    .isInt({ min: 50, max: 250 })
+    .withMessage("Invalid systolic blood pressure"),
+  body("bloodPressure.diastolic")
+    .optional()
+    .isInt({ min: 30, max: 150 })
+    .withMessage("Invalid diastolic pressure"),
+  numberValidator("heamoglobin", 0, 25),
+  numberValidator("fetalHeartRate", 60, 220),
+  dateValidator("nextVisitDate"),
+  body("notes")
+    .optional()
+    .trim()
+    .isLength({ max: 1000 })
+    .withMessage("Notes cannot exceed 1000 characters"),
+];

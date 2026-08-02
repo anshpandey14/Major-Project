@@ -5,11 +5,13 @@ import {
   createANCValidator,
   getAllANCValidator,
   getANCByIdValidator,
+  updateANCValidator,
 } from "../validators/anc.validators.js";
 import {
   createAnc,
   getAllANC,
   getANCById,
+  updateANC,
 } from "../controllers/anc.controllers.js";
 
 const router = Router();
@@ -21,6 +23,7 @@ router
 
 router
   .route("/:patientId/:ancId")
-  .get(verifyJWT, getANCByIdValidator(), validate, getANCById);
+  .get(verifyJWT, getANCByIdValidator(), validate, getANCById)
+  .put(verifyJWT, updateANCValidator(), validate, updateANC);
 
 export default router;
