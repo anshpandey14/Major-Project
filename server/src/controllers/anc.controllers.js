@@ -120,4 +120,43 @@ const getAllANC = asyncHandler(async (req, res) => {
   );
 });
 
-export { createAnc, getAllANC };
+const getANCById = asyncHandler(async (req, res) => {
+  const { patientId, ancId } = req.params;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (
+    req.user.role === UserRolesEnum.ASHA &&
+    patient.assignedASHA.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(
+      403,
+      "You are not authorized to access this patient's ANC record",
+    );
+  }
+
+  const ancRecord = await ANC.findOne({
+    _id: ancId,
+    patient: patientId,
+    isActive: true,
+  })
+    .populate("patient", "fullName phone village gender")
+    .populate("conductedBy", "fullName username");
+
+  if (!ancRecord) {
+    throw new ApiError(404, "ANC record not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, ancRecord, "ANC record fetched successfully"));
+});
+
+export { createAnc, getAllANC, getANCById };
