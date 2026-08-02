@@ -41,3 +41,8 @@ export const getAllANCValidator = () => [
   mongoIdValidator("patientId"),
   ...paginationValidator(),
 ];
+
+export const getANCByIdValidator = () => [
+  mongoIdValidator("patientId"),
+  mongoIdValidator("ancId"),
+];
