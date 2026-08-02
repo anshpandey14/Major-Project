@@ -159,4 +159,57 @@ const getANCById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, ancRecord, "ANC record fetched successfully"));
 });
 
-export { createAnc, getAllANC, getANCById };
+const updateANC = asyncHandler(async (req, res) => {
+  const { patientId, ancId } = req.params;
+
+  const ancRecord = await ANC.findOne({
+    _id: ancId,
+    patient: patientId,
+    isActive: true,
+  });
+
+  if (!ancRecord) {
+    throw new ApiError(404, "ANC record not found");
+  }
+
+  if (ancRecord.conductedBy.toString() !== req.user._is.toString()) {
+    throw new ApiError(403, "you are not authorized to update this ANC record");
+  }
+
+  const allowedFields = [
+    "visitDate",
+    "gestationalWeek",
+    "weight",
+    "heamoglobin",
+    "fetalHeartRate",
+    "nextVisitDate",
+    "notes",
+  ];
+
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      ancRecord[field] = req.body[field];
+    }
+  });
+
+  if (req.body.bloodPressure) {
+    ancRecord.bloodPressure.systolic =
+      req.body.bloodPressure.systolic ?? ancRecord.bloodPressure.systolic;
+
+    ancRecord.bloodPressure.diastolic =
+      req.body.bloodPressure.diastolic ?? ancRecord.bloodPressure.diastolic;
+  }
+
+  // ancRecord.isHighRisk =
+  //   ancRecord.bloodPressure.systolic > 140 ||
+  //   ancRecord.bloodPressure.diastolic > 90 ||
+  //   ancRecord.heamoglobin < 8;
+
+  await ancRecord.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, ancRecord, "ANC record updated successfully"));
+});
+
+export { createAnc, getAllANC, getANCById, updateANC };
