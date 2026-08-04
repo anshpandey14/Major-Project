@@ -3,12 +3,14 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
   createANCValidator,
+  deleteANCValidator,
   getAllANCValidator,
   getANCByIdValidator,
   updateANCValidator,
 } from "../validators/anc.validators.js";
 import {
   createAnc,
+  deleteANC,
   getAllANC,
   getANCById,
   updateANC,
@@ -24,6 +26,7 @@ router
 router
   .route("/:patientId/:ancId")
   .get(verifyJWT, getANCByIdValidator(), validate, getANCById)
-  .put(verifyJWT, updateANCValidator(), validate, updateANC);
+  .put(verifyJWT, updateANCValidator(), validate, updateANC)
+  .delete(verifyJWT, deleteANCValidator(), validate, deleteANC);
 
 export default router;
