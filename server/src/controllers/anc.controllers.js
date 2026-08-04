@@ -212,4 +212,25 @@ const updateANC = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, ancRecord, "ANC record updated successfully"));
 });
 
-export { createAnc, getAllANC, getANCById, updateANC };
+const deleteANC = asyncHandler(async (req, res) => {
+  const { patientId, ancId } = req.params;
+
+  const ancRecord = await ANC.findOne({
+    _id: ancId,
+    patient: patientId,
+    isActive: true,
+  });
+
+  if (!ancRecord) {
+    throw new ApiError(404, "ANC record not found");
+  }
+
+  ancRecord.isActive = false;
+  await ancRecord.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "ANC record deleted successfully"));
+});
+
+export { createAnc, getAllANC, getANCById, updateANC, deleteANC };
