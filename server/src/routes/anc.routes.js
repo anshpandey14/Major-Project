@@ -13,6 +13,7 @@ import {
   deleteANC,
   getAllANC,
   getANCById,
+  getANCStats,
   updateANC,
 } from "../controllers/anc.controllers.js";
 
@@ -28,5 +29,7 @@ router
   .get(verifyJWT, getANCByIdValidator(), validate, getANCById)
   .put(verifyJWT, updateANCValidator(), validate, updateANC)
   .delete(verifyJWT, deleteANCValidator(), validate, deleteANC);
+
+router.route("/stats").get(verifyJWT, validate, getANCStats);
 
 export default router;
