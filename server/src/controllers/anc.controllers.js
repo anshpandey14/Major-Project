@@ -233,4 +233,117 @@ const deleteANC = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, null, "ANC record deleted successfully"));
 });
 
-export { createAnc, getAllANC, getANCById, updateANC, deleteANC };
+const getANCStats = asyncHandler(async (req, res) => {
+  const today = new Date();
+
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  const match = {
+    isActive: true,
+  };
+
+  if (req.user.role === UserRolesEnum.ASHA) {
+    match.conductedBy = req.user._id;
+  }
+
+  const [
+    totalANCVisitsThisMonth,
+    highRiskPatients,
+    averageHaemoglobin,
+    trimesterCounts,
+  ] = await Promise.all([
+    ANC.countDocuments({
+      ...match,
+      visitDate: {
+        $gte: startOfMonth,
+        $lt: endOfMonth,
+      },
+    }),
+
+    ANC.countDocuments({ ...match, isHighRisk: true }),
+
+    ANC.aggregate([
+      {
+        $match: {
+          ...match,
+          haemoglobin: { $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          averageHaemoglobin: {
+            $avg: "$haemoglobin",
+          },
+        },
+      },
+    ]),
+
+    ANC.aggregate([
+      {
+        $match: match,
+      },
+      {
+        $project: {
+          trimester: {
+            $switch: {
+              branches: [
+                {
+                  case: { $lte: ["$gestationalWeek", 12] },
+                  then: "First Trimester",
+                },
+                {
+                  case: {
+                    $and: [
+                      { $gte: ["$gestationalWeek", 13] },
+                      { $lte: ["gestationalWeek", 27] },
+                    ],
+                  },
+                  then: "Second Trimester",
+                },
+                {
+                  case: { $gte: ["$gestationalWeek", 28] },
+                  then: "Third Trimester",
+                },
+              ],
+              default: "Unknown",
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$trimester",
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $sort: {
+          _id: 1,
+        },
+      },
+    ]),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        totalANCVisitsThisMonth,
+        highRiskPatients,
+        averageHaemoglobin:
+          averageHaemoglobin.length > 0
+            ? Number(averageHaemoglobin[0].averageHaemoglobin.toFixed(2))
+            : 0,
+        trimesterCounts,
+      },
+      "ANC statistics fetched successfully",
+    ),
+  );
+});
+
+export { createAnc, getAllANC, getANCById, updateANC, deleteANC, getANCStats };
