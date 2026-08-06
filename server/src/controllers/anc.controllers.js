@@ -346,4 +346,54 @@ const getANCStats = asyncHandler(async (req, res) => {
   );
 });
 
-export { createAnc, getAllANC, getANCById, updateANC, deleteANC, getANCStats };
+const getHighRiskANC = asyncHandler(async (req, res) => {
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const filter = {
+    isActive: true,
+    isHighRisk: true,
+  };
+
+  if (req.user.role === UserRolesEnum.ASHA) {
+    filter.conductedBy = req.user._id;
+  }
+
+  const [ancRecords, totalRecords] = await Promise.all([
+    ANC.find(filter)
+      .populate("patient", "fullName phone village")
+      .populate("conductedBy", "fullName username")
+      .sort({ visitDate: -1 })
+      .skip(skip)
+      .limit(limit),
+
+    ANC.countDocuments(filter),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        ancRecords,
+        pagination: {
+          page,
+          limit,
+          totalRecords,
+          totalPages: Math.ceil(totalRecords / limit),
+        },
+      },
+      "High-risk ANC records fetched successfully",
+    ),
+  );
+});
+
+export {
+  createAnc,
+  getAllANC,
+  getANCById,
+  updateANC,
+  deleteANC,
+  getANCStats,
+  getHighRiskANC,
+};
