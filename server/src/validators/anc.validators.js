@@ -75,3 +75,5 @@ export const deleteANCValidator = () => [
   mongoIdValidator("patientId"),
   mongoIdValidator("ancId"),
 ];
+
+export const getHighRiskANCValidator = () => [...paginationValidator()];

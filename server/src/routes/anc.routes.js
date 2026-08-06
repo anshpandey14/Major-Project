@@ -6,6 +6,7 @@ import {
   deleteANCValidator,
   getAllANCValidator,
   getANCByIdValidator,
+  getHighRiskANCValidator,
   updateANCValidator,
 } from "../validators/anc.validators.js";
 import {
@@ -14,6 +15,7 @@ import {
   getAllANC,
   getANCById,
   getANCStats,
+  getHighRiskANC,
   updateANC,
 } from "../controllers/anc.controllers.js";
 
@@ -31,5 +33,9 @@ router
   .delete(verifyJWT, deleteANCValidator(), validate, deleteANC);
 
 router.route("/stats").get(verifyJWT, validate, getANCStats);
+
+router
+  .route("/high-risk")
+  .get(verifyJWT, getHighRiskANCValidator(), validate, getHighRiskANC);
 
 export default router;
