@@ -54,6 +54,22 @@ export const VaccinationStatusEnum = {
   OVERDUE: "overdue",
 };
 
+export const SyncOperationEnum = {
+  CREATE_PATIENT: "CREATE_PATIENT",
+  UPDATE_PATIENT: "UPDATE_PATIENT",
+
+  CREATE_VISIT: "CREATE_VISIT",
+  UPDATE_VISIT: "UPDATE_VISIT",
+
+  CREATE_VACCINATION: "CREATE_VACCINATION",
+  UPDATE_VACCINATION: "UPDATE_VACCINATION",
+
+  CREATE_ANC: "CREATE_ANC",
+  UPDATE_ANC: "UPDATE_ANC",
+};
+
+export const AvailableSyncOperations = Object.values(SyncOperationEnum);
+
 export const AvailableVaccinationStatus = Object.values(VaccinationStatusEnum);
 
 export const AvailableVaccines = Object.values(VaccineEnum);
