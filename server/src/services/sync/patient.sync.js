@@ -49,4 +49,43 @@ export const syncCreatePatient = async (operation, user, idMap) => {
   });
 };
 
+// update patient
 
+export const syncUpdatePatient = async (operation, user, idMap) => {
+  const { id, payload, timestamp } = operation;
+
+  const data = replaceTempIds(payload, idMap);
+
+  const { patientId, ...updateData } = data;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    assignedASHA: user._id,
+    isActive: true,
+  });
+
+  ensureExists(patient, "Patient not found or access denied");
+
+  if (!isLatestUpdate(timestamp, patient.updatedAt)) {
+    return buildSuccessResult({
+      id,
+      operation: operation.operation,
+      mongoId: patient._id,
+      skipped: true,
+    });
+  }
+
+  Object.keys(updateData).forEach((key) => {
+    if (updateData[key] !== undefined) {
+      patient[key] = updateDate[key];
+    }
+  });
+
+  await Patient.save();
+
+  return buildSuccessResult({
+    id,
+    operation: operation.operation,
+    mongoId: patient._id,
+  });
+};
