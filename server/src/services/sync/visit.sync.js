@@ -39,3 +39,45 @@ export const syncCreateVisit = async (operation, user, idMap) => {
   });
 };
 
+
+// Update visit
+
+export const syncUpdateVisit = async (operation, user, idMap) => {
+  const { id, payload, timestamp } = operation;
+
+  const data = replaceTempIds(payload, idMap);
+
+  const { visitId, patientId, ...updateData } = data;
+
+  const visit = await Visit.findOne({
+    _id: visitId,
+    patient: patientId,
+    conductedBy: user._id,
+    isACtive: true,
+  });
+
+  ensureExists(visit, "Visit not found or or access denied");
+
+  if (!isLatestUpdate(timestamp, visit.updatedAt)) {
+    return buildSuccessResult({
+      id,
+      operation: operation.operation,
+      mongoId: visit._id,
+      skipped: true,
+    });
+  }
+
+  Object.keys(updateData).forEach((key) => {
+    if (updateData[key] !== undefined) {
+      visit[key] = updateDate[key];
+    }
+  });
+
+  await visit.save();
+
+  return buildSuccessResult({
+    id,
+    operation: operation.operation,
+    mongoId: visit._id,
+  });
+};
