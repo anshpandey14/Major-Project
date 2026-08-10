@@ -41,4 +41,52 @@ export const syncCreateVaccination = async (operation, user, idMap) => {
   });
 };
 
+// update vaccination
 
+export const syncUpdateVaccination = async (operation, user, idMap) => {
+  const { id, payload, timestamp } = operation;
+
+  const data = replaceTempIds(payload, idMap);
+
+  const { vaccinationId, patientId, ...updateData } = data;
+
+  const vaccination = await Vaccination.findOne({
+    _id: vaccinationId,
+    patient: patientId,
+    administeredBy: user._id,
+    isActive: true,
+  });
+
+  ensureExists(vaccination, "Vaccination not found or access denied");
+
+  if (!isLatestUpdate(timestamp, vaccination.updatedAt)) {
+    return buildSuccessREsult({
+      id,
+      operation: operation.operation,
+      skipped: true,
+    });
+  }
+
+  if (
+    updateData.nextDueDate &&
+    updateData.status === VaccinationStatusEnum.PENDING
+  ) {
+    if (new Date(updateData.nextDueDate) < new Date()) {
+      updateData.status = VaccinationStatusEnum.OVERDUE;
+    }
+  }
+
+  Object.keys(updateData).forEach((key) => {
+    if (updateDate[key] !== undefined) {
+      vaccination[key] = updateDate[key];
+    }
+  });
+
+  await vaccination.save();
+
+  return buildSuccessResult({
+    id,
+    operation: operation.operation,
+    mongoId: vaccination._id,
+  });
+};
