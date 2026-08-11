@@ -48,3 +48,54 @@ export const syncCreateANC = async (operation, user, idMap) => {
   });
 };
 
+// update ANC
+
+export const syncUpdateANC = async (operation, user, idMap) => {
+  const { id, payload, timestamp } = operation;
+
+  const data = replaceTempIds(payload, idMap);
+
+  const { ancId, patientId, ...updateData } = data;
+
+  const anc = await ANC.findOne({
+    _id: ancId,
+    patient: patientId,
+    conductedBy: user._id,
+    isActive: true,
+  });
+
+  ensureExists(anc, "ANC record not found or access denied");
+
+  if (!isLatestUpdate(timestamp, anc.updatedAt)) {
+    return buildSuccessResult({
+      id,
+      operation: operation.operation,
+      mongoId: anc._id,
+      skipped: true,
+    });
+  }
+
+  const systolic =
+    updateData.bloodPressure?.systolic ?? anc.bloodPressure?.systolic ?? 0;
+
+  const diastolic =
+    updateData.bloodPressure?.diastolic ?? anc.bloodPressure?.diastolic ?? 0;
+
+  const hb = updateData.heamoglobin ?? anc.heamoglobin;
+
+  updateData.isHighRisk = systolic > 140 || diastolic > 90 || hb < 8;
+
+  Object.keys(updateData).forEach((key) => {
+    if (updateData[key] !== undefined) {
+      anc[key] = updateData[key];
+    }
+  });
+
+  await anc.save();
+
+  return buildSuccessResult({
+    id,
+    operation: operation.operation,
+    mongoId: anc._id,
+  });
+};
