@@ -34,6 +34,7 @@ import PatientRouter from "./routes/patient.routes.js";
 import VisitRouter from "./routes/visit.routes.js";
 import VaccinationRouter from "./routes/vaccination.routes.js";
 import ANCRouter from "./routes/anc.routes.js";
+import syncRouter from "./routes/sync.routes.js";
 
 app.use("/api/v1/healthcheck", healthcheckRouter);
 app.use("/api/v1/auth", authRouter);
@@ -41,6 +42,7 @@ app.use("/api/v1/patient", PatientRouter);
 app.use("/api/v1/visit", VisitRouter);
 app.use("/api/v1/vaccination", VaccinationRouter);
 app.use("/api/v1/anc", ANCRouter);
+app.use("api/v1/sync", syncRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to major-project");
