@@ -28,4 +28,36 @@ export const buildSummaryPrompt = (
   `;
 };
 
+export const buildRiskPrompt = (patient, ancRecords) => {
+  return `You are an experienced obstetric healthcare assistant.
+  
+  Assess pregnancy risk using the ANC recors below.
 
+  Clinical Guidelines:
+
+  - Blood Pressure > 140/90 = High risk
+
+  - Haemoglobin < 8 g/dL = High risk
+
+  - Missed ANC follow-ups increase risk.
+
+  - Rapid weight changes should be considered.
+
+  Return ONLY valid JSON in exact this format:
+
+  {
+  "riskLevel":"low | medium  high",
+  "reason":"Explain your reasoning in less than 100 words."
+  }
+
+  Patient Information: ${JSON.stringify(patient, null, 2)}
+
+  ANC Records: ${(JSON, stringify(ancRecords, null, 2))}
+
+  Do not return Markdown.
+
+  Do not return code blocks.
+
+  Return JSON only.
+  `;
+};
