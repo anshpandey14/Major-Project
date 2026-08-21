@@ -63,6 +63,27 @@ const patientSchema = new Schema(
       default: true,
       index: true,
     },
+    aiSummary: {
+      type: String,
+      default: null,
+    },
+    aiSummaryGeneratedAt: {
+      type: Date,
+      default: null,
+    },
+    aiRiskLevel: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: null,
+    },
+    aiRiskReason: {
+      type: String,
+      default: null,
+    },
+    aiRiskGeneratedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );
