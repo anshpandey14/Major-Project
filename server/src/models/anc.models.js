@@ -17,7 +17,7 @@ const ancSchema = new Schema(
     visitDate: {
       type: Date,
       required: true,
-      deafult: Date.now,
+      default: Date.now,
     },
     gestationalWeek: {
       type: Number,
@@ -73,7 +73,7 @@ ancSchema.pre("save", function (next) {
   this.isHighRisk =
     this.bloodPressure.systolic > 140 ||
     this.bloodPressure.diastolic > 90 ||
-    this.haemoglobin < 8;
+    this.heamoglobin < 8;
   next();
 });
 

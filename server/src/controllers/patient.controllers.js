@@ -3,6 +3,7 @@ import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
+import { PatientGenderEnum, UserRolesEnum } from "../utils/constants.js";
 
 const createPatient = asyncHandler(async (req, res) => {
   const {
@@ -53,7 +54,7 @@ const getAllPatients = asyncHandler(async (req, res) => {
 
   const query = { isActive: true };
 
-  if (req.user.role === "phc") {
+  if (req.user.role === UserRolesEnum.PHC) {
   } else if (req.user.role === "asha") {
     query.assignedASHA = req.user._id;
   } else {
@@ -124,8 +125,13 @@ const getPatientById = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Patient not found");
   }
 
-  if (req.user.role === "asha" && !patient.assignedASHA.equals(req.user._id)) {
-    throw new ApiError(403, "Access denied");
+  if (req.user.role === UserRolesEnum.ASHA) {
+    if (
+      !patient.assignedASHA ||
+      patient.assignedASHA._id.toString() !== req.user._id.toString()
+    ) {
+      throw new ApiError(403, "Access denied");
+    }
   }
 
   return res
@@ -136,9 +142,9 @@ const getPatientById = asyncHandler(async (req, res) => {
 const getStats = asyncHandler(async (req, res) => {
   const query = { isActive: true };
 
-  if (req.user.role === "asha") {
+  if (req.user.role === UserRolesEnum.ASHA) {
     query.assignedASHA = req.user._id;
-  } else if (req.user.role !== "phc") {
+  } else if (req.user.role !== UserRolesEnum.PHC) {
     throw new ApiError(403, "Access Denied");
   }
 
@@ -162,11 +168,11 @@ const getStats = asyncHandler(async (req, res) => {
     }),
     Patient.countDocuments({
       ...query,
-      gender: "male",
+      gender: PatientGenderEnum.MALE,
     }),
     Patient.countDocuments({
       ...query,
-      gender: "female",
+      gender: PatientGenderEnum.FEMALE,
     }),
     Patient.countDocuments({
       ...query,
@@ -248,8 +254,10 @@ const updatePatient = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Patient not found");
   }
 
-  if (req.user.role === "asha" && !patient.assignedASHA.equals(req.user._id)) {
-    throw new ApiError(403, "Access denied");
+  if (req.user.role === UserRolesEnum.ASHA) {
+    if (!patient.assignedASHA || !patient.assignedASHA.equals(req.user._id)) {
+      throw new ApiError(403, "Access denied");
+    }
   }
 
   const allowedFields = [
@@ -272,6 +280,25 @@ const updatePatient = asyncHandler(async (req, res) => {
       updateData[field] = req.body[field];
     }
   });
+
+  if (Object.keys(updateData).length === 0) {
+    throw new ApiError(400, "No fields to update");
+  }
+
+  if (updateData.phone) {
+    const existing = await Patient.findOne({
+      phone: updateData.phone,
+      _id: { $ne: patientId },
+      isActive: true,
+    });
+    if (existing) {
+      throw new ApiError(409, "Phone already exists");
+    }
+  }
+
+  if (updateData.isPregnant === false || patient.isPregnant === false) {
+    updateData.lmpDate = null;
+  }
 
   const updatedPatient = await Patient.findByIdAndUpdate(
     patientId,

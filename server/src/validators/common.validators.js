@@ -70,14 +70,22 @@ export const dateValidator = (field, required = false) => {
     validator = validator.optional();
   }
 
-  return validator.isISO8601().withMessage(`Invalid ${field}`);
+  return validator.isISO8601().withMessage(`Invalid ${field}`).toDate();
 };
 
-export const numberValidator = (field, min, max, unit) =>
-  body(field)
-    .optional()
+export const numberValidator = (field, min, max, unit, required = false) => {
+  let validator = body(field);
+
+  if (required) {
+    validator = validator.notEmpty().withMessage(`${field} is required`);
+  } else {
+    validator = validator.optional();
+  }
+
+  return validator
     .isFloat({ min, max })
     .withMessage(`${field} must be between ${min} and ${max} ${unit}`);
+};
 
 export const enumValidator = (field, values, required = false) => {
   let validator = body(field);

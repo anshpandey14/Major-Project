@@ -27,7 +27,7 @@ const createVaccination = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Patient not found or not assigned to you");
   }
 
-  if (!vaccie && !customVaccine?.trim()) {
+  if (!vaccine && !customVaccine?.trim()) {
     throw new ApiError(400, "Either vaccine or customVaccine is required");
   }
 
@@ -37,9 +37,20 @@ const createVaccination = asyncHandler(async (req, res) => {
     vaccine,
     customVaccine,
     doseNumber,
+    vaccinationDate,
     nextDueDate,
     notes,
     status: VaccinationStatusEnum.COMPLETED,
+  });
+
+  await Patient.findByIdAndUpdate(patientId, {
+    $unset: {
+      aiSummary: "",
+      aiSummaryGeneratedAt: "",
+      aiRiskLevel: "",
+      aiRiskReason: "",
+      aiRiskGeneratedAt: "",
+    },
   });
 
   return res
@@ -49,7 +60,7 @@ const createVaccination = asyncHandler(async (req, res) => {
     );
 });
 
-const getAllVaccinations = asuncHandler(async (req, res) => {
+const getAllVaccinations = asyncHandler(async (req, res) => {
   const { patientId } = req.params;
 
   const page = Number(req.query.page) || 1;

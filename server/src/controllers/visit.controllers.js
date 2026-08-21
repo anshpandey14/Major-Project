@@ -38,6 +38,16 @@ const createVisit = asyncHandler(async (req, res) => {
     followUpDate,
   });
 
+  await Patient.findByIdAndUpdate(patientId, {
+    $set: {
+      aiSummary: null,
+      aiSummaryGeneratedAt: null,
+      aiRiskLevel: null,
+      aiRiskReason: null,
+      aiRiskGeneratedAt: null,
+    },
+  });
+
   return res
     .status(201)
     .json(new ApiResponse(201, visit, "Visit created Successfully"));
@@ -138,6 +148,15 @@ const getVisitById = asyncHandler(async (req, res) => {
 const updateVisit = asyncHandler(async (req, res) => {
   const { patientId, visitId } = req.params;
 
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
   const visit = await Visit.findOne({
     _id: visitId,
     patient: patientId,
@@ -161,6 +180,14 @@ const updateVisit = asyncHandler(async (req, res) => {
     "followUpDate",
   ];
 
+  const hasUpdates = allowedFields.some(
+    (field) => req.body[field] !== undefined,
+  );
+
+  if (!hasUpdates) {
+    throw new ApiError(400, "No fields provided for update");
+  }
+
   allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
       visit[field] = req.body[field];
@@ -168,6 +195,16 @@ const updateVisit = asyncHandler(async (req, res) => {
   });
 
   await visit.save();
+
+  await Patient.findByIdAndUpdate(patientId, {
+    $set: {
+      aiSummary: null,
+      aiSummaryGeneratedAt: null,
+      aiRiskLevel: null,
+      aiRiskReason: null,
+      aiRiskGeneratedAt: null,
+    },
+  });
 
   return res
     .status(200)
@@ -189,6 +226,16 @@ const deleteVisit = asyncHandler(async (req, res) => {
 
   visit.isActive = false;
   await visit.save();
+
+  await Patient.findByIdAndUpdate(patientId, {
+    $set: {
+      aiSummary: null,
+      aiSummaryGeneratedAt: null,
+      aiRiskLevel: null,
+      aiRiskReason: null,
+      aiRiskGeneratedAt: null,
+    },
+  });
 
   return res
     .status(200)

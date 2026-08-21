@@ -17,6 +17,7 @@ const patientSchema = new Schema(
       required: true,
       trim: true,
       index: true,
+      unique: true,
     },
     village: {
       type: String,
@@ -96,5 +97,7 @@ patientSchema.pre("save", function (next) {
 
   next();
 });
+
+patientSchema.index({ fullName: 1, village: 1 });
 
 export const Patient = mongoose.model("Patient", patientSchema);

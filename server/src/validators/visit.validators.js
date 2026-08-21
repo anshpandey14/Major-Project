@@ -15,7 +15,13 @@ export const createVisitValidator = () => [
   body("symptoms")
     .optional()
     .isArray()
-    .withMessage("Symptoms must be an array"),
+    .withMessage("Symptoms must be an array")
+    .custom((symptoms) => {
+      if (new Set(symptoms).size !== symptoms.length) {
+        throw new Error("Duplicate symptoms are not allowed");
+      }
+      return true;
+    }),
 
   body("symptoms.*")
     .optional()
@@ -47,37 +53,43 @@ export const getVisitByIdValidator = () => [
   mongoIdValidator("visitId"),
 ];
 
-export const updateVisitValidator = () => {
-  mongoIdValidator("patientId");
-  mongoIdValidator("visitId");
+export const updateVisitValidator = () => [
+  mongoIdValidator("patientId"),
+  mongoIdValidator("visitId"),
 
-  dateValidator("visitDate");
-  numberValidator("weight", 0, 300, "kg");
+  dateValidator("visitDate"),
+  numberValidator("weight", 0, 300, "kg"),
 
   body("symptoms")
     .optional()
     .isArray()
-    .withMessage("Symptoms must be an array");
+    .withMessage("Symptoms must be an array")
+    .custom((symptoms) => {
+      if (new Set(symptoms).size !== symptoms.length) {
+        throw new Error("Duplicate symptoms are not allowed");
+      }
+      return true;
+    }),
 
   body("symptoms.*")
     .optional()
     .isIn(AvailableVisitSymptoms)
-    .withMessage("Invalid symptom");
+    .withMessage("Invalid symptom"),
 
   body("additionalSymptoms")
     .optional()
     .trim()
     .isLength({ max: 500 })
-    .withMessage("Additional symptoms cannot exceed 500 characters");
+    .withMessage("Additional symptoms cannot exceed 500 characters"),
 
   body("notes")
     .optional()
     .trim()
     .isLength({ max: 1000 })
-    .withMessage("Notes cannot exceed 1000 characters");
+    .withMessage("Notes cannot exceed 1000 characters"),
 
-  dateValidator("followUpDate");
-};
+  dateValidator("followUpDate"),
+];
 
 export const deleteVisitValidator = () => [
   mongoIdValidator("patientId"),

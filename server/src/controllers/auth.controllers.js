@@ -7,10 +7,14 @@ import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
+import { UserRolesEnum } from "../utils/constants.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
@@ -28,11 +32,8 @@ const generateAccessAndRefreshToken = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { email, password, fullName, village } = req.body;
 
-  if (!fullName || !email || !password)
-    throw new ApiError(400, "name, email and password are required");
-
   const existedUser = await User.findOne({
-    $or: [{ email }],
+    email,
   });
 
   if (existedUser) {
@@ -43,7 +44,7 @@ const registerUser = asyncHandler(async (req, res) => {
     fullName,
     email,
     password,
-    role: "asha",
+    role: UserRolesEnum.ASHA,
     village,
     isProfileComplete: false,
     mustChangePassword: true,
@@ -79,16 +80,18 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Password is required");
   }
 
-  const user = await User.findOne({ $or: [{ email }, { username }] });
+  const loginQuery = email ? { email } : { username };
+
+  const user = await User.findOne(loginQuery);
 
   if (!user) {
-    throw new ApiError(400, "User does not exists");
+    throw new ApiError(401, "User does not exist");
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if (!isPasswordValid) {
-    throw new ApiError(400, "Invalid credentials");
+    throw new ApiError(401, "Invalid credentials");
   }
 
   if (!user.isActive)
@@ -231,7 +234,7 @@ const changePassword = asyncHandler(async (req, res) => {
   user.password = newPassword;
   user.refreshToken = null;
 
-  await user.save({ validateBeforeSave: false });
+  await user.save();
 
   const options = {
     httpOnly: true,

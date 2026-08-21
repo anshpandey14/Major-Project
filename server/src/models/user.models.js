@@ -31,6 +31,7 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
       index: true,
+      match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     },
     fullName: {
       type: String,
