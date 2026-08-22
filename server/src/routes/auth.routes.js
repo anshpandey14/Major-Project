@@ -8,6 +8,7 @@ import {
   changePassword,
   uploadAvatar,
   completeProfile,
+  resetUserPassword,
 } from "../controllers/auth.controllers.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
@@ -15,6 +16,7 @@ import {
   userLoginValidator,
   userChangeCurrentPasswordValidator,
   completeProfileValidator,
+  resetUserPasswordValidator,
 } from "../validators/user.validators.js";
 import { verifyJWT, requirePHC } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -45,5 +47,14 @@ router
 router
   .route("/complete-profile")
   .put(verifyJWT, completeProfileValidator(), validate, completeProfile);
+router
+  .route("/reset-password")
+  .post(
+    verifyJWT,
+    requirePHC,
+    resetUserPasswordValidator(),
+    validate,
+    resetUserPassword,
+  );
 
 export default router;
