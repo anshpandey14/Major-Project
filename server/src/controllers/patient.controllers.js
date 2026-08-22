@@ -1,9 +1,15 @@
 import { Patient } from "../models/patient.models.js";
-import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
-import { PatientGenderEnum, UserRolesEnum } from "../utils/constants.js";
+import {
+  AvailableUserRole,
+  PatientGenderEnum,
+  UserRolesEnum,
+} from "../utils/constants.js";
+import { Vaccination } from "../models/vaccination.models.js";
+import { Visit } from "../models/visit.models.js";
+import { ANC } from "../models/anc.models.js";
 
 const createPatient = asyncHandler(async (req, res) => {
   const {
@@ -239,7 +245,70 @@ const getStats = asyncHandler(async (req, res) => {
 });
 
 const getTimeline = asyncHandler(async (req, res) => {
-  // will be implemented afterwards
+  const { patientId } = req.params;
+
+  const patient = await Patient.findOne({
+    _id: patientId,
+    isActive: true,
+  });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
+
+  if (
+    req.user.role === AvailableUserRole.ASHA &&
+    patient.assignedASHA.toString() !== req.user._id.toString()
+  ) {
+    throw new ApiError(403, "You are not authorized to access this patient");
+  }
+
+  const [visits, vaccinations, ancRecords] = await Promise.all([
+    Visit.find({
+      patient: patientId,
+      isActive: true,
+    }).lean(),
+
+    Vaccination.find({
+      patient: patientId,
+      isActive: true,
+    }).lean(),
+
+    ANC.find({
+      patient: patientId,
+      isACtive: true,
+    }).lean(),
+  ]);
+
+  const visitTimeline = visits.map((visit) => ({
+    ...visit,
+    type: "visit",
+    date: visit.visitDate,
+  }));
+
+  const vaccinationTimeline = vaccinations.map((vaccination) => ({
+    ...vaccination,
+    type: "vaccination",
+    date: vaccination.vaccinationDate,
+  }));
+
+  const ancTimeline = ancRecords.map((anc) => ({
+    ...anc,
+    type: "anc",
+    date: anc.visitDate,
+  }));
+
+  const timeline = [...visitTimeline, ...vaccinationTimeline, ...ancTimeline];
+
+  timeline.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, timeline, "Patient timeline fetched successfully"),
+    );
 });
 
 const updatePatient = asyncHandler(async (req, res) => {
