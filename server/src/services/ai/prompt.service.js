@@ -46,13 +46,13 @@ export const buildRiskPrompt = (patient, ancRecords) => {
   Return ONLY valid JSON in exact this format:
 
   {
-  "riskLevel":"low | medium  high",
+  "riskLevel":"low | medium | high",
   "reason":"Explain your reasoning in less than 100 words."
   }
 
   Patient Information: ${JSON.stringify(patient, null, 2)}
 
-  ANC Records: ${(JSON, stringify(ancRecords, null, 2))}
+  ANC Records: ${JSON.stringify(ancRecords, null, 2)}
 
   Do not return Markdown.
 

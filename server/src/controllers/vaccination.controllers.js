@@ -244,7 +244,7 @@ const updateVaccination = asyncHandler(async (req, res) => {
 const deleteVaccination = asyncHandler(async (req, res) => {
   const { patientId, vaccinationId } = req.params;
 
-  const vaccination = await vacciantion.findOne({
+  const vaccination = await Vaccination.findOne({
     _id: vaccinationId,
     patient: patientId,
     isActive: true,
@@ -326,7 +326,7 @@ const getVaccinationStats = asyncHandler(async (req, res) => {
       {
         totalVaccinationsThisMonth,
         vaccineCounts,
-        statusCounts,
+        statusCount,
       },
       "Vaccination statistics fetched successfully",
     ),
@@ -348,7 +348,7 @@ const getOverdueVaccinations = asyncHandler(async (req, res) => {
     },
   };
 
-  if ((req.user, role === UserRolesEnum.ASHA)) {
+  if ((req.user.role === UserRolesEnum.ASHA)) {
     filter.administeredBy = req.user._id;
   }
 

@@ -1,7 +1,7 @@
 import { ANC } from "../models/anc.models.js";
 import { Patient } from "../models/patient.models.js";
 import { Vaccination } from "../models/vaccination.models.js";
-import { ANC, Visit } from "../models/visit.models.js";
+import { Visit } from "../models/visit.models.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
@@ -19,6 +19,10 @@ const generateSummary = asyncHandler(async (req, res) => {
     _id: patientId,
     isActive: true,
   });
+
+  if (!patient) {
+    throw new ApiError(404, "Patient not found");
+  }
 
   if (
     req.user.role === UserRolesEnum.ASHA &&
@@ -151,7 +155,7 @@ const generateRiskAssessment = asyncHandler(async (req, res) => {
     patient.aiRiskLevel &&
     patient.aiRiskReason &&
     patient.aiRiskGeneratedAt &&
-    Data.now() - patient.aiRiskGeneratedAt.getTime() < 24 * 60 * 60 * 1000
+    Date.now() - patient.aiRiskGeneratedAt.getTime() < 24 * 60 * 60 * 1000
   ) {
     return res.status(200).json(
       new ApiResponse(
