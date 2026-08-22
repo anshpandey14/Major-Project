@@ -33,7 +33,7 @@ export const syncCreateANC = async (operation, user, idMap) => {
   const diastolic = ancData.bloodPressure?.diastolic ?? 0;
 
   ancData.isHighRisk =
-    systolic > 140 || diastolic > 90 || ancData.heamoglobin < 8;
+    systolic > 140 || diastolic > 90 || ancData.hemoglobin < 8;
 
   const anc = await ANC.create({
     ...ancData,
@@ -81,7 +81,7 @@ export const syncUpdateANC = async (operation, user, idMap) => {
   const diastolic =
     updateData.bloodPressure?.diastolic ?? anc.bloodPressure?.diastolic ?? 0;
 
-  const hb = updateData.heamoglobin ?? anc.heamoglobin;
+  const hb = updateData.hemoglobin ?? anc.hemoglobin;
 
   updateData.isHighRisk = systolic > 140 || diastolic > 90 || hb < 8;
 

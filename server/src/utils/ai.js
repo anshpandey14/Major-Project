@@ -26,16 +26,18 @@ export const generateAIResponse = async (prompt) => {
   } catch (error) {
     console.error("Gemini API Error:", error);
 
-    if (error.status === 401 || error.status === 403) {
+    const status = error?.status ?? error?.response?.status;
+
+    if (status === 401 || status === 403) {
       throw new ApiError(500, "Invalid Gemini API key");
     }
 
-    if (error.status === 429) {
+    if (status === 429) {
       throw new ApiError(429, "Gemini API rate limit exceeded");
     }
 
-    if (error.status >= 500) {
-      throw new ApiError(503, "Gemini AI seervice is temporarily unavailable");
+    if (status >= 500) {
+      throw new ApiError(503, "Gemini AI service is temporarily unavailable");
     }
 
     throw new ApiError(500, error.message || "Unable to generate AI Response");

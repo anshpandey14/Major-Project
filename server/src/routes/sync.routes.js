@@ -9,4 +9,4 @@ const router = Router();
 
 router.route("/").post(verifyJWT, syncValidator(), validate, syncOperations);
 
-export const router;
+export default router;

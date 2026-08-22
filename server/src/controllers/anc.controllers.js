@@ -13,7 +13,7 @@ const createAnc = asyncHandler(async (req, res) => {
     gestationalWeek,
     weight,
     bloodPressure,
-    heamoglobin,
+    hemoglobin,
     fetalHeartRate,
     nextVisitDate,
     notes,
@@ -38,7 +38,7 @@ const createAnc = asyncHandler(async (req, res) => {
 
   const { systolic, diastolic } = bloodPressure;
 
-  const isHighRisk = systolic > 140 || diastolic < 90 || heamoglobin < 8;
+  const isHighRisk = systolic > 140 || diastolic > 90 || hemoglobin < 8;
 
   const ancRecord = await ANC.create({
     patient: patientId,
@@ -47,14 +47,24 @@ const createAnc = asyncHandler(async (req, res) => {
     gestationalWeek,
     weight,
     bloodPressure: {
-      systoloc,
+      systolic,
       diastolic,
     },
-    heamoglobin,
+    hemoglobin,
     fetalHeartRate,
     nextVisitDate,
     isHighRisk,
     notes,
+  });
+
+  await Patient.findByIdAndUpdate(patientId, {
+    $unset: {
+      aiSummary: "",
+      aiSummaryGeneratedAt: "",
+      aiRiskLevel: "",
+      aiRiskReason: "",
+      aiRiskGeneratedAt: "",
+    },
   });
 
   return res
@@ -172,7 +182,7 @@ const updateANC = asyncHandler(async (req, res) => {
     throw new ApiError(404, "ANC record not found");
   }
 
-  if (ancRecord.conductedBy.toString() !== req.user._is.toString()) {
+  if (ancRecord.conductedBy.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "you are not authorized to update this ANC record");
   }
 
@@ -180,11 +190,19 @@ const updateANC = asyncHandler(async (req, res) => {
     "visitDate",
     "gestationalWeek",
     "weight",
-    "heamoglobin",
+    "hemoglobin",
     "fetalHeartRate",
     "nextVisitDate",
     "notes",
   ];
+
+  const hasUpdates = allowedFields.some(
+    (field) => req.body[field] !== undefined,
+  );
+
+  if (!hasUpdates) {
+    throw new ApiError(400, "No fields provided for update");
+  }
 
   allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
@@ -200,12 +218,23 @@ const updateANC = asyncHandler(async (req, res) => {
       req.body.bloodPressure.diastolic ?? ancRecord.bloodPressure.diastolic;
   }
 
-  // ancRecord.isHighRisk =
-  //   ancRecord.bloodPressure.systolic > 140 ||
-  //   ancRecord.bloodPressure.diastolic > 90 ||
-  //   ancRecord.heamoglobin < 8;
+  const systolic = ancRecord.bloodPressure.systolic;
+  const diastolic = ancRecord.bloodPressure.diastolic;
+  const haemoglobin = ancRecord.hemoglobin;
+
+  ancRecord.isHighRisk = systolic > 140 || diastolic > 90 || haemoglobin < 8;
 
   await ancRecord.save();
+
+  await Patient.findByIdAndUpdate(patientId, {
+    $unset: {
+      aiSummary: "",
+      aiSummaryGeneratedAt: "",
+      aiRiskLevel: "",
+      aiRiskReason: "",
+      aiRiskGeneratedAt: "",
+    },
+  });
 
   return res
     .status(200)
@@ -227,6 +256,16 @@ const deleteANC = asyncHandler(async (req, res) => {
 
   ancRecord.isActive = false;
   await ancRecord.save();
+
+  await Patient.findByIdAndUpdate(patientId, {
+    $unset: {
+      aiSummary: "",
+      aiSummaryGeneratedAt: "",
+      aiRiskLevel: "",
+      aiRiskReason: "",
+      aiRiskGeneratedAt: "",
+    },
+  });
 
   return res
     .status(200)

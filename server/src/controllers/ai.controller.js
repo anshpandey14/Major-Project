@@ -82,6 +82,11 @@ const generateSummary = asyncHandler(async (req, res) => {
 
   try {
     const summary = await generateAIResponse(prompt);
+
+    if (!summary || typeof summary !== "string") {
+      throw new ApiError(502, "Invalid AI response");
+    }
+
     patient.aiSummary = summary;
     patient.aiSummaryGeneratedAt = new Date();
 
@@ -105,7 +110,7 @@ const generateSummary = asyncHandler(async (req, res) => {
         new ApiResponse(
           200,
           {
-            summary: patient.summary,
+            summary: patient.aiSummary,
             cached: true,
             stale: true,
           },
@@ -174,6 +179,10 @@ const generateRiskAssessment = asyncHandler(async (req, res) => {
 
   try {
     const response = await generateAIResponse(prompt);
+
+    if (!response || typeof response !== "string") {
+      throw new ApiError(502, "Invalid AI response");
+    }
 
     let parsedResponse;
 

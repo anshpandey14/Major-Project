@@ -21,6 +21,12 @@ import {
 
 const router = Router();
 
+router.route("/stats").get(verifyJWT, validate, getANCStats);
+
+router
+  .route("/high-risk")
+  .get(verifyJWT, getHighRiskANCValidator(), validate, getHighRiskANC);
+
 router
   .route("/patientId")
   .post(verifyJWT, createANCValidator(), validate, createAnc)
@@ -31,11 +37,5 @@ router
   .get(verifyJWT, getANCByIdValidator(), validate, getANCById)
   .put(verifyJWT, updateANCValidator(), validate, updateANC)
   .delete(verifyJWT, deleteANCValidator(), validate, deleteANC);
-
-router.route("/stats").get(verifyJWT, validate, getANCStats);
-
-router
-  .route("/high-risk")
-  .get(verifyJWT, getHighRiskANCValidator(), validate, getHighRiskANC);
 
 export default router;

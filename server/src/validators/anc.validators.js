@@ -6,36 +6,34 @@ import {
   paginationValidator,
 } from "./common.validators.js";
 
-export const createANCValidator = () => {
-  [
-    mongoIdValidator("patientId"),
-    dateValidator("visitDate", true),
-    numberValidator("gestationalWeek", 1, 42, "", true),
-    numberValidator("weight", 20, 200),
+export const createANCValidator = () => [
+  mongoIdValidator("patientId"),
+  dateValidator("visitDate", true),
+  numberValidator("gestationalWeek", 1, 42, "", true),
+  numberValidator("weight", 20, 200),
 
-    body(bloodPressure.systolic)
-      .notEmpty()
-      .withMessage("Systolic blood pressure is required")
-      .isIn({ min: 50, max: 250 })
-      .withMessage("Invalid systolic blood pressure"),
+  body("bloodPressure.systolic")
+    .notEmpty()
+    .withMessage("Systolic blood pressure is required")
+    .isInt({ min: 50, max: 250 })
+    .withMessage("Invalid systolic blood pressure"),
 
-    body("bloodPressure.diastolic")
-      .notEmpty()
-      .withMessage("Diastolic blood pressure is required")
-      .isIn({ min: 30, max: 150 })
-      .withMessage("Invalid diastolic blood pressure"),
+  body("bloodPressure.diastolic")
+    .notEmpty()
+    .withMessage("Diastolic blood pressure is required")
+    .isInt({ min: 50, max: 250 })
+    .withMessage("Invalid diastolic blood pressure"),
 
-    numberValidator("heamoglobin", 0, 25, "", true),
-    numberValidator("fetalHeartRate", 60, 220, "", true),
-    dateValidator("nextVisitDate"),
+  numberValidator("hemoglobin", 0, 25, "", true),
+  numberValidator("fetalHeartRate", 60, 220, "", true),
+  dateValidator("nextVisitDate"),
 
-    body("notes")
-      .optional()
-      .trim()
-      .isLength({ max: 1000 })
-      .withMessage("Message cannot exceed 1000 charaters"),
-  ];
-};
+  body("notes")
+    .optional()
+    .trim()
+    .isLength({ max: 1000 })
+    .withMessage("Message cannot exceed 1000 charaters"),
+];
 
 export const getAllANCValidator = () => [
   mongoIdValidator("patientId"),
@@ -61,7 +59,7 @@ export const updateANCValidator = () => [
     .optional()
     .isInt({ min: 30, max: 150 })
     .withMessage("Invalid diastolic pressure"),
-  numberValidator("heamoglobin", 0, 25),
+  numberValidator("hemoglobin", 0, 25),
   numberValidator("fetalHeartRate", 60, 220),
   dateValidator("nextVisitDate"),
   body("notes")

@@ -17,6 +17,7 @@ export const syncCreatePatient = async (operation, user, idMap) => {
 
   const existingPatient = await Patient.findOne({
     phone: data.phone,
+    assignedASHA: user._id,
     isActive: true,
   });
 
@@ -77,11 +78,11 @@ export const syncUpdatePatient = async (operation, user, idMap) => {
 
   Object.keys(updateData).forEach((key) => {
     if (updateData[key] !== undefined) {
-      patient[key] = updateDate[key];
+      patient[key] = updateData[key];
     }
   });
 
-  await Patient.save();
+  await patient.save();
 
   return buildSuccessResult({
     id,

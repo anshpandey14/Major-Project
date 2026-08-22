@@ -9,7 +9,7 @@ export const replaceTempIds = (payload, idMap) => {
 
   const clonedPayload = { ...payload };
 
-  const idFields = ["patientId", "visitId", "vaccinationId", "ancID"];
+  const idFields = ["patientId", "visitId", "vaccinationId", "ancId"];
 
   idFields.forEach((field) => {
     if (clonedPayload[field] && idMap.has(clonedPayload[field])) {

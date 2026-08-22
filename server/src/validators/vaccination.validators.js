@@ -9,7 +9,6 @@ import {
   AvailableVaccinationStatus,
   AvailableVaccines,
 } from "../utils/constants.js";
-import { ApiError } from "../utils/api-error.js";
 
 export const createVaccinationValidator = () => [
   mongoIdValidator("patientId"),
@@ -32,19 +31,14 @@ export const createVaccinationValidator = () => [
     .isLength({ max: 100 })
     .withMessage("Custom vaccine name cannot excedd 100 characters"),
 
-  numberValidator(
-    "doseNumber",
-    0,
-    10,
-    "",
-    dateValidator("vaccinationDate", true),
-    dateValidator("nextDueDate"),
-    body("notes")
-      .optional()
-      .trim()
-      .isLength({ max: 1000 })
-      .withMessage("Notes cannot excedd 1000 characters"),
-  ),
+  numberValidator("doseNumber", 0, 10, ""),
+  dateValidator("vaccinationDate", true),
+  dateValidator("nextDueDate"),
+  body("notes")
+    .optional()
+    .trim()
+    .isLength({ max: 1000 })
+    .withMessage("Notes cannot excedd 1000 characters"),
 ];
 
 export const getAllVaccinationsValidator = () => [

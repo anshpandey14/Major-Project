@@ -13,7 +13,7 @@ const vaccinationSchema = new Schema(
       required: true,
       index: true,
     },
-    administredBy: {
+    administeredBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -32,29 +32,29 @@ const vaccinationSchema = new Schema(
     doseNumber: {
       type: Number,
       required: true,
-      min: 0,
+      min: 1,
       max: 10,
     },
     vaccinationDate: {
       type: Date,
       required: true,
-      deafult: Date.now,
+      default: Date.now,
     },
     nextDueDate: {
       type: Date,
-      deafult: null,
+      default: null,
       index: true,
     },
     status: {
       type: String,
       enum: AvailableVaccinationStatus,
-      deafult: VaccinationStatusEnum.COMPLETED,
+      default: VaccinationStatusEnum.COMPLETED,
       index: true,
     },
     notes: {
       type: String,
       trim: true,
-      deafult: "",
+      default: "",
       maxLength: 1000,
     },
     isActive: {
@@ -83,7 +83,7 @@ vaccinationSchema.index({
 
 vaccinationSchema.index({
   patient: 1,
-  vacccinationDate: -1,
+  vaccinationDate: -1,
 });
 
 vaccinationSchema.index({

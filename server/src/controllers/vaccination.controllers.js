@@ -31,6 +31,18 @@ const createVaccination = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Either vaccine or customVaccine is required");
   }
 
+  const existingVaccination = await Vaccination.findOne({
+    patient: patientId,
+    vaccine: vaccine || null,
+    customVaccine: customVaccine || null,
+    doseNumber,
+    isActive: true,
+  });
+
+  if (existingVaccination) {
+    throw new ApiError(409, "This vaccine dose has already been recorded");
+  }
+
   const vaccination = await Vaccination.create({
     patient: patientId,
     administeredBy: req.user._id,
@@ -194,6 +206,10 @@ const updateVaccination = asyncHandler(async (req, res) => {
     }
   });
 
+  if (vaccination.customVaccine) {
+    vaccination.customVaccine = vaccination.customVaccine.trim();
+  }
+
   if (!vaccination.vaccine && !vaccination.customVaccine?.trim()) {
     throw new ApiError(400, "Either vaccine or customVaccine is required");
   }
@@ -201,16 +217,28 @@ const updateVaccination = asyncHandler(async (req, res) => {
   if (
     vaccination.status === VaccinationStatusEnum.PENDING &&
     vaccination.nextDueDate &&
-    vacciantion.nextDueDate < new Date()
+    vaccination.nextDueDate < new Date()
   ) {
     vaccination.status = VaccinationStatusEnum.OVERDUE;
   }
 
   await vaccination.save();
 
-  return Response.status(200).json(
-    new ApiResponse(200, vaccination, "vaccination updated successfully"),
-  );
+  await Patient.findByIdAndUpdate(patientId, {
+    $unset: {
+      aiSummary: "",
+      aiSummaryGeneratedAt: "",
+      aiRiskLevel: "",
+      aiRiskReason: "",
+      aiRiskGeneratedAt: "",
+    },
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, vaccination, "vaccination updated successfully"),
+    );
 });
 
 const deleteVaccination = asyncHandler(async (req, res) => {

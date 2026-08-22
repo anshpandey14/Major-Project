@@ -40,7 +40,7 @@ const ancSchema = new Schema(
         required: true,
       },
     },
-    heamoglobin: {
+    hemoglobin: {
       type: Number,
       min: 0,
       max: 25,
@@ -70,10 +70,12 @@ const ancSchema = new Schema(
 );
 
 ancSchema.pre("save", function (next) {
-  this.isHighRisk =
-    this.bloodPressure.systolic > 140 ||
-    this.bloodPressure.diastolic > 90 ||
-    this.heamoglobin < 8;
+  const systolic = this.bloodPressure?.systolic ?? 0;
+  const diastolic = this.bloodPressure?.diastolic ?? 0;
+  const hb = this.hemoglobin ?? Infinity;
+
+  this.isHighRisk = systolic > 140 || diastolic > 90 || hb < 8;
+
   next();
 });
 

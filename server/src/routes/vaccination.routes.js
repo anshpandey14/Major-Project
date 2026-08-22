@@ -21,17 +21,6 @@ import {
 
 const router = Router();
 
-router
-  .route("/:patientId")
-  .post(verifyJWT, createVaccinationValidator(), validate, createVaccination)
-  .get(verifyJWT, getAllVaccinationsValidator(), validate, getAllVaccinations);
-
-router
-  .route(":/patientId:/vaccinationId")
-  .get(verifyJWT, getVaccinationByIdValidator(), validate, getVaccinationById)
-  .put(verifyJWT, updateVaccinationValidator(), validate, updateVaccination)
-  .delete(verifyJWT, deleteVaccinationValidator(), validate, deleteVaccination);
-
 router.route("/stats").get(verifyJWT, validate, getVaccinationStats);
 
 router
@@ -42,5 +31,16 @@ router
     validate,
     getOverdueVaccinations,
   );
+
+router
+  .route("/:patientId")
+  .post(verifyJWT, createVaccinationValidator(), validate, createVaccination)
+  .get(verifyJWT, getAllVaccinationsValidator(), validate, getAllVaccinations);
+
+router
+  .route(":/patientId:/vaccinationId")
+  .get(verifyJWT, getVaccinationByIdValidator(), validate, getVaccinationById)
+  .put(verifyJWT, updateVaccinationValidator(), validate, updateVaccination)
+  .delete(verifyJWT, deleteVaccinationValidator(), validate, deleteVaccination);
 
 export default router;
