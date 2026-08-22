@@ -7,7 +7,7 @@ import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
-import { UserRolesEnum } from "../utils/constants.js";
+import { AvailableUserRole, UserRolesEnum } from "../utils/constants.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -316,6 +316,36 @@ const completeProfile = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { user }, "Profile completed successfully"));
 });
 
+const resetUserPassword = asyncHandler(async (req, res) => {
+  const { userId, newPassword } = req.body;
+
+  if (!userId || !newPassword) {
+    throw new ApiError(400, "userId and newPassword are required");
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (user.role !== AvailableUserRole.ASHA) {
+    throw new ApiError(403, "Only ASHA accounts can be reset");
+  }
+
+  user.password = newPassword;
+
+  user.mustChangePassword = true;
+
+  user.refreshToken = null;
+
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "ASHA password reset successfully"));
+});
+
 export {
   registerUser,
   login,
@@ -325,4 +355,5 @@ export {
   changePassword,
   uploadAvatar,
   completeProfile,
+  resetUserPassword,
 };
