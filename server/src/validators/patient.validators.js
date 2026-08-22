@@ -74,4 +74,6 @@ export const getPatientByIdValidator = () => [mongoIdValidator("patientId")];
 
 export const deletePatientValidator = () => [mongoIdValidator("patientId")];
 
+export const getTimelineValidator = () => [mongoIdValidator("patientId")];
+
 export const getAllPatientsValidator = paginationValidator;

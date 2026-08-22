@@ -14,6 +14,7 @@ import {
   deletePatientValidator,
   getAllPatientsValidator,
   getPatientByIdValidator,
+  getTimelineValidator,
   updatePatientValidator,
 } from "../validators/patient.validators.js";
 import { validate } from "../middlewares/validator.middleware.js";
@@ -26,10 +27,12 @@ router
   .get(verifyJWT, getAllPatientsValidator(), validate, getAllPatients);
 router.route("/stats").get(verifyJWT, getStats);
 router
+  .route("/:patientId/timeline")
+  .get(verifyJWT, getTimelineValidator(), validate, getTimeline);
+router
   .route("/:patientId")
   .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById)
   .patch(verifyJWT, updatePatientValidator(), validate, updatePatient)
   .delete(verifyJWT, deletePatientValidator(), validate, deletePatient);
-router.route("/:patientId/timeline").get();
 
 export default router;
