@@ -18,23 +18,25 @@ import {
   updatePatientValidator,
 } from "../validators/patient.validators.js";
 import { validate } from "../middlewares/validator.middleware.js";
+import { requirePasswordChange } from "../middlewares/password.middleware.js";
 
 const router = Router();
 
 router
   .route("/")
-  .post(verifyJWT, createPatientValidator(), validate, createPatient)
-  .get(verifyJWT, getAllPatientsValidator(), validate, getAllPatients);
-router.route("/stats").get(verifyJWT, getStats);
+  .post(verifyJWT, requirePasswordChange, createPatientValidator(), validate, createPatient)
+  .get(verifyJWT, requirePasswordChange, getAllPatientsValidator(), validate, getAllPatients);
+router.route("/stats").get(verifyJWT, requirePasswordChange, getStats);
 router
   .route("/:patientId/timeline")
-  .get(verifyJWT, getTimelineValidator(), validate, getTimeline);
+  .get(verifyJWT, requirePasswordChange, getTimelineValidator(), validate, getTimeline);
 router
   .route("/:patientId")
-  .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById)
-  .patch(verifyJWT, updatePatientValidator(), validate, updatePatient)
+  .get(verifyJWT, requirePasswordChange, getPatientByIdValidator(), validate, getPatientById)
+  .patch(verifyJWT, requirePasswordChange, updatePatientValidator(), validate, updatePatient)
   .delete(
     verifyJWT,
+    requirePasswordChange,
     requirePHC,
     deletePatientValidator(),
     validate,

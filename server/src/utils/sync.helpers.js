@@ -1,4 +1,5 @@
 import { ApiError } from "./api-error.js";
+import { UserRolesEnum } from "./constants.js";
 
 // Replace temporary IDs with MongoDB IDs
 export const replaceTempIds = (payload, idMap) => {
@@ -67,4 +68,20 @@ export const buildSuccessResult = ({
     mongoId: mongoId?.toString(),
     skipped,
   };
+};
+
+
+// Authorization helpers used by offline sync.
+export const isPHC = (user) => user?.role === UserRolesEnum.PHC;
+
+export const assertPatientAccess = (patient, user) => {
+  ensureExists(patient, "Patient not found or access denied");
+
+  if (user?.role === UserRolesEnum.PHC) return patient;
+
+  if (!patient.assignedASHA?.equals(user?._id)) {
+    throw new ApiError(403, "Patient not found or access denied");
+  }
+
+  return patient;
 };

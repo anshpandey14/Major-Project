@@ -5,7 +5,6 @@ const syncOperationsSchema = new mongoose.Schema(
     operationId: {
       type: String,
       required: true,
-      unique: true,
       index: true,
     },
 
@@ -37,4 +36,4 @@ export const SyncOperation = mongoose.model(
   syncOperationsSchema,
 );
 
-syncOperationSchema.index({ operationId: 1, user: 1 }, { unique: true });
+syncOperationsSchema.index({ operationId: 1, user: 1 }, { unique: true });

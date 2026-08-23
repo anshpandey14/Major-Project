@@ -7,7 +7,7 @@ import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
-import { AvailableUserRole, UserRolesEnum } from "../utils/constants.js";
+import { UserRolesEnum } from "../utils/constants.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -37,7 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (existedUser) {
-    throw new ApiError(409, "User with email or username already exists");
+    throw new ApiError(409, "User with this email already exists");
   }
 
   const user = await User.create({
@@ -180,6 +180,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
   if (!user) {
     throw new ApiError(401, "Invalid refresh token");
+  }
+
+  if (!user.isActive) {
+    throw new ApiError(403, "Account deactivated");
   }
 
   if (incomingRefreshToken !== user.refreshToken) {
@@ -340,7 +344,7 @@ const resetUserPassword = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
-  if (user.role !== AvailableUserRole.ASHA) {
+  if (user.role !== UserRolesEnum.ASHA) {
     throw new ApiError(403, "Only ASHA accounts can be reset");
   }
 

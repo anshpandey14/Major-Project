@@ -17,11 +17,16 @@ const createVaccination = asyncHandler(async (req, res) => {
     notes,
   } = req.body;
 
-  const patient = await Patient.findOne({
+  const patientQuery = {
     _id: patientId,
-    assignedASHA: req.user._id,
     isActive: true,
-  });
+  };
+
+  if (req.user.role === UserRolesEnum.ASHA) {
+    patientQuery.assignedASHA = req.user._id;
+  }
+
+  const patient = await Patient.findOne(patientQuery);
 
   if (!patient) {
     throw new ApiError(404, "Patient not found or not assigned to you");
@@ -31,13 +36,16 @@ const createVaccination = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Either vaccine or customVaccine is required");
   }
 
-  const existingVaccination = await Vaccination.findOne({
+  const duplicateQuery = {
     patient: patientId,
-    vaccine: vaccine || null,
-    customVaccine: customVaccine || null,
     doseNumber,
     isActive: true,
-  });
+  };
+
+  if (vaccine) duplicateQuery.vaccine = vaccine;
+  if (customVaccine?.trim()) duplicateQuery.customVaccine = customVaccine.trim();
+
+  const existingVaccination = await Vaccination.findOne(duplicateQuery);
 
   if (existingVaccination) {
     throw new ApiError(409, "This vaccine dose has already been recorded");
@@ -183,7 +191,7 @@ const updateVaccination = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Vaccination record not found");
   }
 
-  if (vaccination.administeredBy.toString() !== req.user._id.toString()) {
+  if (req.user.role !== UserRolesEnum.PHC && vaccination.administeredBy.toString() !== req.user._id.toString()) {
     throw new ApiError(
       403,
       "You are not authorized to update this vaccination",
@@ -205,6 +213,12 @@ const updateVaccination = asyncHandler(async (req, res) => {
       vaccination[field] = req.body[field];
     }
   });
+
+  if (req.body.vaccine !== undefined) {
+    vaccination.customVaccine = "";
+  } else if (req.body.customVaccine !== undefined) {
+    vaccination.vaccine = undefined;
+  }
 
   if (vaccination.customVaccine) {
     vaccination.customVaccine = vaccination.customVaccine.trim();

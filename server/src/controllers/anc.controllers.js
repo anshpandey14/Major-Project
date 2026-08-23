@@ -19,11 +19,16 @@ const createAnc = asyncHandler(async (req, res) => {
     notes,
   } = req.body;
 
-  const patient = await Patient.findOne({
+  const patientQuery = {
     _id: patientId,
-    assignedASHA: req.user._id,
     isActive: true,
-  });
+  };
+
+  if (req.user.role === UserRolesEnum.ASHA) {
+    patientQuery.assignedASHA = req.user._id;
+  }
+
+  const patient = await Patient.findOne(patientQuery);
 
   if (!patient) {
     throw new ApiError(404, "Patient notfound or not assigned to you");
@@ -182,7 +187,7 @@ const updateANC = asyncHandler(async (req, res) => {
     throw new ApiError(404, "ANC record not found");
   }
 
-  if (ancRecord.conductedBy.toString() !== req.user._id.toString()) {
+  if (req.user.role !== UserRolesEnum.PHC && ancRecord.conductedBy.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "you are not authorized to update this ANC record");
   }
 

@@ -17,11 +17,16 @@ const createVisit = asyncHandler(async (req, res) => {
     followUpDate,
   } = req.body;
 
-  const existingPatient = await Patient.findOne({
+  const patientQuery = {
     _id: patientId,
-    assignedASHA: req.user._id,
     isActive: true,
-  });
+  };
+
+  if (req.user.role === UserRolesEnum.ASHA) {
+    patientQuery.assignedASHA = req.user._id;
+  }
+
+  const existingPatient = await Patient.findOne(patientQuery);
 
   if (!existingPatient) {
     throw new ApiError(404, "Patient not found or not assigned to you");
@@ -167,7 +172,7 @@ const updateVisit = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Visit not found");
   }
 
-  if (visit.conductedBy.toString() !== req.user._id.toString()) {
+  if (req.user.role !== UserRolesEnum.PHC && visit.conductedBy.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "You are not authorized to update this visit");
   }
 

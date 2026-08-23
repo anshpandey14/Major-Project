@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { requirePasswordChange } from "../middlewares/password.middleware.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
   generateRiskAssessment,
@@ -14,10 +15,10 @@ const router = Router();
 
 router
   .route("/summary")
-  .post(verifyJWT, generateSummaryValidator(), validate, generateSummary);
+  .post(verifyJWT, requirePasswordChange, generateSummaryValidator(), validate, generateSummary);
 
 router
   .route("/risk")
-  .post(verifyJWT, generateRiskValidator(), validate, generateRiskAssessment);
+  .post(verifyJWT, requirePasswordChange, generateRiskValidator(), validate, generateRiskAssessment);
 
 export default router;

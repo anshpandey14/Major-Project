@@ -1,10 +1,13 @@
 import { Patient } from "../../models/patient.models.js";
 import { Visit } from "../../models/visit.models.js";
+import { ApiError } from "../../utils/api-error.js";
 import {
   buildSuccessResult,
   ensureExists,
   isLatestUpdate,
   replaceTempIds,
+  saveIdMapping,
+  assertPatientAccess,
 } from "../../utils/sync.helpers.js";
 
 // CREATE VISIT
@@ -17,11 +20,10 @@ export const syncCreateVisit = async (operation, user, idMap) => {
 
   const patient = await Patient.findOne({
     _id: patientId,
-    assignedASHA: user._id,
     isActive: true,
   });
 
-  ensureExists(patient, "Patient not found or access denied");
+  assertPatientAccess(patient, user);
 
   /*
    * Only allow fields that an ASHA is allowed
@@ -44,11 +46,14 @@ export const syncCreateVisit = async (operation, user, idMap) => {
     }
   }
 
+  const localId = data.localId;
   const visit = await Visit.create({
     ...safeVisitData,
     patient: patientId,
     conductedBy: user._id,
   });
+
+  saveIdMapping(localId, visit._id, idMap);
 
   return buildSuccessResult({
     id,
@@ -68,11 +73,14 @@ export const syncUpdateVisit = async (operation, user, idMap) => {
   const visit = await Visit.findOne({
     _id: visitId,
     patient: patientId,
-    conductedBy: user._id,
     isActive: true,
   });
 
   ensureExists(visit, "Visit not found or access denied");
+
+  if (user?.role !== "phc" && !visit.conductedBy.equals(user._id)) {
+    throw new ApiError(403, "Visit not found or access denied");
+  }
 
   /*
    * Last-write-wins conflict resolution.

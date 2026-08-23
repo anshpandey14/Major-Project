@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/async-handler.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { processSyncOperation } from "../services/sync/index.js";
 import { SyncOperation } from "../models/sync-operation.models.js";
+import { saveIdMapping } from "../utils/sync.helpers.js";
 
 export const syncOperations = asyncHandler(async (req, res) => {
   const { operations } = req.body;
@@ -23,11 +24,18 @@ export const syncOperations = asyncHandler(async (req, res) => {
       });
 
       if (existingOperation) {
-        success.push({
+        const duplicateResult = {
           ...existingOperation.result,
           duplicate: true,
-        });
+        };
 
+        // Rebuild the temp-id mapping when a previously successful
+        // operation is retried in the same sync batch.
+        if (operation.payload?.localId && duplicateResult.mongoId) {
+          saveIdMapping(operation.payload.localId, duplicateResult.mongoId, idMap);
+        }
+
+        success.push(duplicateResult);
         continue;
       }
 

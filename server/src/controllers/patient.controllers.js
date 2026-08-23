@@ -3,7 +3,6 @@ import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import {
-  AvailableUserRole,
   PatientGenderEnum,
   UserRolesEnum,
 } from "../utils/constants.js";
@@ -28,6 +27,7 @@ const createPatient = asyncHandler(async (req, res) => {
   const existingPatient = await Patient.findOne({
     phone,
     assignedASHA: req.user._id,
+    isActive: true,
   });
 
   if (existingPatient) {
@@ -257,7 +257,7 @@ const getTimeline = asyncHandler(async (req, res) => {
   }
 
   if (
-    req.user.role === AvailableUserRole.ASHA &&
+    req.user.role === UserRolesEnum.ASHA &&
     patient.assignedASHA.toString() !== req.user._id.toString()
   ) {
     throw new ApiError(403, "You are not authorized to access this patient");
@@ -377,6 +377,16 @@ const updatePatient = asyncHandler(async (req, res) => {
       runValidators: true,
     },
   );
+
+  await Patient.findByIdAndUpdate(patientId, {
+    $unset: {
+      aiSummary: "",
+      aiSummaryGeneratedAt: "",
+      aiRiskLevel: "",
+      aiRiskReason: "",
+      aiRiskGeneratedAt: "",
+    },
+  });
 
   return res
     .status(200)

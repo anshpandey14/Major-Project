@@ -7,6 +7,8 @@ import {
   ensureExists,
   isLatestUpdate,
   replaceTempIds,
+  saveIdMapping,
+  assertPatientAccess,
 } from "../../utils/sync.helpers.js";
 
 // CREATE VACCINATION
@@ -23,11 +25,10 @@ export const syncCreateVaccination = async (operation, user, idMap) => {
    */
   const patient = await Patient.findOne({
     _id: patientId,
-    assignedASHA: user._id,
     isActive: true,
   });
 
-  ensureExists(patient, "Patient not found or access denied");
+  assertPatientAccess(patient, user);
 
   /*
    * Only allow client-controlled vaccination fields.
@@ -72,19 +73,10 @@ export const syncCreateVaccination = async (operation, user, idMap) => {
     isActive: true,
   };
 
-  /*
-   * For normal vaccines, identify the dose using
-   * the vaccine field.
-   */
   if (safeVaccinationData.vaccine) {
     duplicateQuery.vaccine = safeVaccinationData.vaccine;
-  }
-
-  /*
-   * For custom vaccines, use customVaccine.
-   */
-  if (safeVaccinationData.customVaccine) {
-    duplicateQuery.customVaccine = safeVaccinationData.customVaccine;
+  } else if (safeVaccinationData.customVaccine) {
+    duplicateQuery.customVaccine = safeVaccinationData.customVaccine.trim();
   }
 
   const existingVaccination = await Vaccination.findOne(duplicateQuery);
@@ -93,11 +85,14 @@ export const syncCreateVaccination = async (operation, user, idMap) => {
     throw new ApiError(409, "This vaccine dose has already been recorded");
   }
 
+  const localId = data.localId;
   const vaccination = await Vaccination.create({
     ...safeVaccinationData,
     patient: patientId,
     administeredBy: user._id,
   });
+
+  saveIdMapping(localId, vaccination._id, idMap);
 
   return buildSuccessResult({
     id,
@@ -117,11 +112,14 @@ export const syncUpdateVaccination = async (operation, user, idMap) => {
   const vaccination = await Vaccination.findOne({
     _id: vaccinationId,
     patient: patientId,
-    administeredBy: user._id,
     isActive: true,
   });
 
   ensureExists(vaccination, "Vaccination not found or access denied");
+
+  if (user?.role !== "phc" && !vaccination.administeredBy.equals(user._id)) {
+    throw new ApiError(403, "Vaccination not found or access denied");
+  }
 
   /*
    * Last-write-wins conflict resolution.
@@ -149,6 +147,12 @@ export const syncUpdateVaccination = async (operation, user, idMap) => {
     if (updateData[key] !== undefined) {
       vaccination[key] = updateData[key];
     }
+  }
+
+  if (updateData.vaccine !== undefined) {
+    vaccination.customVaccine = "";
+  } else if (updateData.customVaccine !== undefined) {
+    vaccination.vaccine = undefined;
   }
 
   /*

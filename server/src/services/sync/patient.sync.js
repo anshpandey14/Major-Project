@@ -5,6 +5,7 @@ import {
   isLatestUpdate,
   ensureExists,
   buildSuccessResult,
+  assertPatientAccess,
 } from "../../utils/sync.helpers.js";
 
 // CREATE PATIENT
@@ -94,11 +95,10 @@ export const syncUpdatePatient = async (operation, user, idMap) => {
 
   const patient = await Patient.findOne({
     _id: patientId,
-    assignedASHA: user._id,
     isActive: true,
   });
 
-  ensureExists(patient, "Patient not found or access denied");
+  assertPatientAccess(patient, user);
 
   /*
    * Last-write-wins conflict resolution.

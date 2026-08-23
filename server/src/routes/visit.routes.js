@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validator.middleware.js";
+import { requirePasswordChange } from "../middlewares/password.middleware.js";
 import { requirePHC, verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createVisitValidator,
@@ -20,12 +21,12 @@ const router = Router();
 
 router
   .route("/:patientId")
-  .post(verifyJWT, createVisitValidator(), validate, createVisit)
-  .get(verifyJWT, getAllVisitsValidators(), validate, getAllVisits);
+  .post(verifyJWT, requirePasswordChange, createVisitValidator(), validate, createVisit)
+  .get(verifyJWT, requirePasswordChange, getAllVisitsValidators(), validate, getAllVisits);
 router
   .route("/:patientId/:visitId")
-  .get(verifyJWT, getVisitByIdValidator(), validate, getVisitById)
-  .put(verifyJWT, updateVisitValidator(), validate, updateVisit)
-  .delete(verifyJWT,requirePHC, deleteVisitValidator(), validate, deleteVisit);
+  .get(verifyJWT, requirePasswordChange, getVisitByIdValidator(), validate, getVisitById)
+  .put(verifyJWT, requirePasswordChange, updateVisitValidator(), validate, updateVisit)
+  .delete(verifyJWT, requirePasswordChange, requirePHC, deleteVisitValidator(), validate, deleteVisit);
 
 export default router;

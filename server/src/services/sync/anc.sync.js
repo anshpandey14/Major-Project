@@ -1,10 +1,13 @@
 import { Patient } from "../../models/patient.models.js";
 import { ANC } from "../../models/anc.models.js";
+import { ApiError } from "../../utils/api-error.js";
 import {
   buildSuccessResult,
   ensureExists,
   isLatestUpdate,
   replaceTempIds,
+  saveIdMapping,
+  assertPatientAccess,
 } from "../../utils/sync.helpers.js";
 
 // CREATE ANC
@@ -23,13 +26,12 @@ export const syncCreateANC = async (operation, user, idMap) => {
     _id: patientId,
     isActive: true,
     isPregnant: true,
-    assignedASHA: user._id,
   });
 
-  ensureExists(
-    patient,
-    "Patient not found or access denied or patient not pregnant",
-  );
+  assertPatientAccess(patient, user);
+  if (!patient.isPregnant) {
+    throw new ApiError(400, "Patient is not pregnant");
+  }
 
   /*
    * Only allow fields that the client is allowed
@@ -68,11 +70,14 @@ export const syncCreateANC = async (operation, user, idMap) => {
 
   safeANCData.isHighRisk = systolic > 140 || diastolic > 90 || hemoglobin < 8;
 
+  const localId = data.localId;
   const anc = await ANC.create({
     ...safeANCData,
     patient: patientId,
     conductedBy: user._id,
   });
+
+  saveIdMapping(localId, anc._id, idMap);
 
   return buildSuccessResult({
     id,
@@ -96,11 +101,14 @@ export const syncUpdateANC = async (operation, user, idMap) => {
   const anc = await ANC.findOne({
     _id: ancId,
     patient: patientId,
-    conductedBy: user._id,
     isActive: true,
   });
 
   ensureExists(anc, "ANC record not found or access denied");
+
+  if (user?.role !== "phc" && !anc.conductedBy.equals(user._id)) {
+    throw new ApiError(403, "ANC record not found or access denied");
+  }
 
   /*
    * Make sure the patient still exists,
@@ -110,13 +118,12 @@ export const syncUpdateANC = async (operation, user, idMap) => {
     _id: patientId,
     isActive: true,
     isPregnant: true,
-    assignedASHA: user._id,
   });
 
-  ensureExists(
-    patient,
-    "Patient not found or access denied or patient not pregnant",
-  );
+  assertPatientAccess(patient, user);
+  if (!patient.isPregnant) {
+    throw new ApiError(400, "Patient is not pregnant");
+  }
 
   /*
    * Last-write-wins conflict resolution.
