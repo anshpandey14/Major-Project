@@ -1,5 +1,4 @@
 import { Patient } from "../../models/patient.models.js";
-import { ApiError } from "../../utils/api-error.js";
 import {
   replaceTempIds,
   saveIdMapping,
@@ -8,21 +7,53 @@ import {
   buildSuccessResult,
 } from "../../utils/sync.helpers.js";
 
-// create patient
-
+// CREATE PATIENT
 export const syncCreatePatient = async (operation, user, idMap) => {
   const { id, payload } = operation;
 
   const data = replaceTempIds(payload, idMap);
 
+  const localId = data.localId;
+
+  /*
+   * Only allow fields that the ASHA client is allowed
+   * to create.
+   */
+  const allowedFields = [
+    "fullName",
+    "phone",
+    "village",
+    "gender",
+    "dob",
+    "weight",
+    "height",
+    "bloodGroup",
+    "isPregnant",
+    "lmpDate",
+  ];
+
+  const patientData = {};
+
+  for (const key of allowedFields) {
+    if (data[key] !== undefined) {
+      patientData[key] = data[key];
+    }
+  }
+
+  /*
+   * Business-level duplicate check.
+   *
+   * The same phone number for the same ASHA should
+   * not create another active patient.
+   */
   const existingPatient = await Patient.findOne({
-    phone: data.phone,
+    phone: patientData.phone,
     assignedASHA: user._id,
     isActive: true,
   });
 
   if (existingPatient) {
-    saveIdMapping(data.localId, existingPatient._id, idMap);
+    saveIdMapping(localId, existingPatient._id, idMap);
 
     return buildSuccessResult({
       id,
@@ -32,16 +63,19 @@ export const syncCreatePatient = async (operation, user, idMap) => {
     });
   }
 
-  //   remove local id before saving
-  delete data.localId;
-
   const patient = await Patient.create({
-    ...data,
+    ...patientData,
     assignedASHA: user._id,
   });
 
-  //  save temp -> mongo mapping
-  saveIdMapping(payload.localId, patient._id, idMap);
+  /*
+   * Map:
+   *
+   * temp-patient-id
+   *        ↓
+   * MongoDB patient _id
+   */
+  saveIdMapping(localId, patient._id, idMap);
 
   return buildSuccessResult({
     id,
@@ -50,8 +84,7 @@ export const syncCreatePatient = async (operation, user, idMap) => {
   });
 };
 
-// update patient
-
+// UPDATE PATIENT
 export const syncUpdatePatient = async (operation, user, idMap) => {
   const { id, payload, timestamp } = operation;
 
@@ -67,6 +100,9 @@ export const syncUpdatePatient = async (operation, user, idMap) => {
 
   ensureExists(patient, "Patient not found or access denied");
 
+  /*
+   * Last-write-wins conflict resolution.
+   */
   if (!isLatestUpdate(timestamp, patient.updatedAt)) {
     return buildSuccessResult({
       id,
@@ -76,11 +112,24 @@ export const syncUpdatePatient = async (operation, user, idMap) => {
     });
   }
 
-  Object.keys(updateData).forEach((key) => {
+  const allowedFields = [
+    "fullName",
+    "phone",
+    "village",
+    "gender",
+    "dob",
+    "weight",
+    "height",
+    "bloodGroup",
+    "isPregnant",
+    "lmpDate",
+  ];
+
+  for (const key of allowedFields) {
     if (updateData[key] !== undefined) {
       patient[key] = updateData[key];
     }
-  });
+  }
 
   await patient.save();
 
