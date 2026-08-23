@@ -196,6 +196,15 @@ const generateRiskAssessment = asyncHandler(async (req, res) => {
       throw new ApiError(500, "Claude returned invalid json");
     }
 
+    const validRiskLevels = ["low", "medium", "high"];
+
+    if (
+      !validRiskLevels.includes(parsedResponse.riskLevel) ||
+      typeof parsedResponse.reason !== "string"
+    ) {
+      throw new ApiError(502, "Invalid AI response format");
+    }
+
     patient.aiRiskLevel = parsedResponse.riskLevel;
     patient.aiRiskReason = parsedResponse.reason;
     patient.aiRiskGeneratedAt = new Date();

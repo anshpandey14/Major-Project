@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { requirePHC, verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createPatient,
   deletePatient,
@@ -33,6 +33,12 @@ router
   .route("/:patientId")
   .get(verifyJWT, getPatientByIdValidator(), validate, getPatientById)
   .patch(verifyJWT, updatePatientValidator(), validate, updatePatient)
-  .delete(verifyJWT, deletePatientValidator(), validate, deletePatient);
+  .delete(
+    verifyJWT,
+    requirePHC,
+    deletePatientValidator(),
+    validate,
+    deletePatient,
+  );
 
 export default router;

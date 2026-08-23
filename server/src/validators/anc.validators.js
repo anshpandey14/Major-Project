@@ -11,7 +11,7 @@ export const createANCValidator = () => [
   dateValidator("visitDate", true),
   numberValidator("gestationalWeek", 1, 42, "", true),
   numberValidator("weight", 20, 200),
-
+  body("bloodPressure").optional().isObject(),
   body("bloodPressure.systolic")
     .notEmpty()
     .withMessage("Systolic blood pressure is required")
@@ -51,6 +51,7 @@ export const updateANCValidator = () => [
   dateValidator("visitDate"),
   numberValidator("gestationalWeek", 1, 42),
   numberValidator("weight", 20, 200),
+  body("bloodPressure").optional().isObject(),
   body("bloodPressure.systolic")
     .optional()
     .isInt({ min: 50, max: 250 })

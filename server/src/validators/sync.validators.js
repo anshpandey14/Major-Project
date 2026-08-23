@@ -4,15 +4,21 @@ import { AvailableSyncOperations } from "../utils/constants.js";
 export const syncValidator = () => {
   return [
     body("operations")
-      .isArray({ min: 1 })
+      .isArray({ min: 1, max: 100 })
       .withMessage("Operations must be a non-empty array"),
 
     body("operations.*.id")
+      .isString()
+      .withMessage("Operation id must be a string")
       .trim()
       .notEmpty()
-      .withMessage("Operation id is required"),
+      .withMessage("Operation id is required")
+      .isLength({ max: 100 })
+      .withMessage("Operation id is too long"),
 
     body("operations.*.operation")
+      .isString()
+      .withMessage("Operation must be a string")
       .trim()
       .notEmpty()
       .withMessage("Operation is required")

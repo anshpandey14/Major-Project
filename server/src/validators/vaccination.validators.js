@@ -31,7 +31,7 @@ export const createVaccinationValidator = () => [
     .isLength({ max: 100 })
     .withMessage("Custom vaccine name cannot excedd 100 characters"),
 
-  numberValidator("doseNumber", 0, 10, ""),
+  numberValidator("doseNumber", 1, 10, ""),
   dateValidator("vaccinationDate", true),
   dateValidator("nextDueDate"),
   body("notes")
@@ -66,7 +66,7 @@ export const updateVaccinationValidator = () => [
     .isLength({ max: 100 })
     .withMessage("Custom vaccine name cannot exceed 100 characters"),
 
-  numberValidator("doseNumber", 0, 10, ""),
+  numberValidator("doseNumber", 1, 10, ""),
 
   dateValidator("vaccinationDate"),
 

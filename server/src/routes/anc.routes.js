@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { requirePHC, verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
   createANCValidator,
@@ -28,7 +28,7 @@ router
   .get(verifyJWT, getHighRiskANCValidator(), validate, getHighRiskANC);
 
 router
-  .route("/patientId")
+  .route("/:patientId")
   .post(verifyJWT, createANCValidator(), validate, createAnc)
   .get(verifyJWT, getAllANCValidator(), validate, getAllANC);
 
@@ -36,6 +36,6 @@ router
   .route("/:patientId/:ancId")
   .get(verifyJWT, getANCByIdValidator(), validate, getANCById)
   .put(verifyJWT, updateANCValidator(), validate, updateANC)
-  .delete(verifyJWT, deleteANCValidator(), validate, deleteANC);
+  .delete(verifyJWT, requirePHC, deleteANCValidator(), validate, deleteANC);
 
 export default router;

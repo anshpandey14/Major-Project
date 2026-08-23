@@ -337,7 +337,7 @@ const getANCStats = asyncHandler(async (req, res) => {
                   case: {
                     $and: [
                       { $gte: ["$gestationalWeek", 13] },
-                      { $lte: ["gestationalWeek", 27] },
+                      { $lte: ["$gestationalWeek", 27] },
                     ],
                   },
                   then: "Second Trimester",

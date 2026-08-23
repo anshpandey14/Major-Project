@@ -17,7 +17,7 @@ const patientSchema = new Schema(
       required: true,
       trim: true,
       index: true,
-      unique: true,
+      // unique: true,
     },
     village: {
       type: String,

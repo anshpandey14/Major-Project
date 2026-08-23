@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validate } from "../middlewares/validator.middleware.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { requirePHC, verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createVaccination,
   deleteVaccination,
@@ -38,9 +38,15 @@ router
   .get(verifyJWT, getAllVaccinationsValidator(), validate, getAllVaccinations);
 
 router
-  .route(":/patientId:/vaccinationId")
+  .route("/:patientId/:vaccinationId")
   .get(verifyJWT, getVaccinationByIdValidator(), validate, getVaccinationById)
   .put(verifyJWT, updateVaccinationValidator(), validate, updateVaccination)
-  .delete(verifyJWT, deleteVaccinationValidator(), validate, deleteVaccination);
+  .delete(
+    verifyJWT,
+    requirePHC,
+    deleteVaccinationValidator(),
+    validate,
+    deleteVaccination,
+  );
 
 export default router;

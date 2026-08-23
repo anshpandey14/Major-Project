@@ -61,7 +61,7 @@ const getAllPatients = asyncHandler(async (req, res) => {
   const query = { isActive: true };
 
   if (req.user.role === UserRolesEnum.PHC) {
-  } else if (req.user.role === "asha") {
+  } else if (req.user.role === UserRolesEnum.ASHA) {
     query.assignedASHA = req.user._id;
   } else {
     throw new ApiError(403, "Access Denied");
@@ -276,7 +276,7 @@ const getTimeline = asyncHandler(async (req, res) => {
 
     ANC.find({
       patient: patientId,
-      isACtive: true,
+      isActive: true,
     }).lean(),
   ]);
 

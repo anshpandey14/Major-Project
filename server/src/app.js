@@ -5,6 +5,7 @@ import fs from "fs";
 import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
+import path from "path";
 
 const app = express();
 app.disable("x-powered-by");
