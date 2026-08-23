@@ -88,14 +88,14 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(401, "User does not exist");
   }
 
+  if (!user.isActive)
+    throw new ApiError(403, "Account deactivated. Contact PHC admin.");
+
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid credentials");
   }
-
-  if (!user.isActive)
-    throw new ApiError(403, "Account deactivated. Contact PHC admin.");
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user._id,
@@ -213,10 +213,22 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const changePassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword, confirmPassword } = req.body;
 
-  const user = await User.findById(req.user?._id);
-
   if (!oldPassword || !newPassword || !confirmPassword) {
     throw new ApiError(400, "All password fields are required");
+  }
+
+  if (newPassword !== confirmPassword) {
+    throw new ApiError(400, "Passwords do not match");
+  }
+
+  if (oldPassword === newPassword) {
+    throw new ApiError(400, "New password must be different from old password");
+  }
+
+  const user = await User.findById(req.user?._id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
   }
 
   const isPasswordValid = await user.isPasswordCorrect(oldPassword);
@@ -225,12 +237,12 @@ const changePassword = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid old password");
   }
 
-  if (newPassword !== confirmPassword) {
-    throw new ApiError(400, "Passwords do not match");
-  }
-
-  user.mustChangePassword = false;
   user.password = newPassword;
+
+  // Password has now been changed successfully.
+  user.mustChangePassword = false;
+
+  // Invalidate existing refresh token.
   user.refreshToken = null;
 
   await user.save();
@@ -244,7 +256,7 @@ const changePassword = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, {}, "Password changed Successfully"));
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
 const uploadAvatar = asyncHandler(async (req, res) => {
@@ -334,8 +346,11 @@ const resetUserPassword = asyncHandler(async (req, res) => {
 
   user.password = newPassword;
 
+  // Force ASHA to change the temporary password
+  // on their next login.
   user.mustChangePassword = true;
 
+  // Invalidate existing refresh token/session.
   user.refreshToken = null;
 
   await user.save();

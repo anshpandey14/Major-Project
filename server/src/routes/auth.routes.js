@@ -23,11 +23,13 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
 
-// unsecured routes
+// ==================== PUBLIC ====================
+
 router.route("/login").post(userLoginValidator(), validate, login);
 router.route("/refresh-token").post(refreshAccessToken);
 
-//secure routes
+// ==================== AUTHENTICATED ====================
+
 router
   .route("/register")
   .post(verifyJWT, requirePHC, userRegisterValidator(), validate, registerUser);
@@ -47,6 +49,9 @@ router
 router
   .route("/complete-profile")
   .put(verifyJWT, completeProfileValidator(), validate, completeProfile);
+
+// ==================== PHC ONLY ====================
+
 router
   .route("/reset-password")
   .post(

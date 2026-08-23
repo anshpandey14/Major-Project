@@ -4,6 +4,7 @@ import {
   passwordValidator,
   phoneValidator,
   fullNameValidator,
+  mongoIdValidator,
 } from "./common.validators.js";
 
 export const userRegisterValidator = () => [
@@ -17,12 +18,13 @@ export const userLoginValidator = () => [
     if (!value.email && !value.username) {
       throw new Error("Email or username is required");
     }
+
     return true;
   }),
 
   emailValidator(false),
 
-  body("username").optional().trim(),
+  body("username").optional().trim().toLowerCase(),
 
   body("password").trim().notEmpty().withMessage("Password is required"),
 ];
@@ -34,6 +36,7 @@ export const userChangeCurrentPasswordValidator = () => [
     if (value === req.body.oldPassword) {
       throw new Error("New password must be different from old password");
     }
+
     return true;
   }),
 
@@ -45,6 +48,7 @@ export const userChangeCurrentPasswordValidator = () => [
       if (value !== req.body.newPassword) {
         throw new Error("Passwords do not match");
       }
+
       return true;
     }),
 ];
@@ -66,10 +70,5 @@ export const completeProfileValidator = () => [
 export const resetUserPasswordValidator = () => [
   mongoIdValidator("userId"),
 
-  body("newPassword")
-    .trim()
-    .notEmpty()
-    .withMessage("New password is required")
-    .isLength({ min: 8, max: 128 })
-    .withMessage("Password must be between 8 and 128 characters"),
+  passwordValidator("newPassword"),
 ];
