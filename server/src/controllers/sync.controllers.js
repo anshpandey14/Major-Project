@@ -1,6 +1,7 @@
 import { asyncHandler } from "../utils/async-handler.js";
 import { ApiResponse } from "../utils/api-response.js";
 import { processSyncOperation } from "../services/sync/index.js";
+import { SyncOperation } from "../models/sync-operation.models.js";
 
 export const syncOperations = asyncHandler(async (req, res) => {
   const { operations } = req.body;
@@ -16,7 +17,30 @@ export const syncOperations = asyncHandler(async (req, res) => {
 
   for (const operation of sortedOperations) {
     try {
+      const existingOperation = await SyncOperation.findOne({
+        operationId: operation.id,
+        user: req.user._id,
+      });
+
+      if (existingOperation) {
+        success.push({
+          ...existingOperation.result,
+          duplicate: true,
+        });
+
+        continue;
+      }
+
       const result = await processSyncOperation(operation, req.user, idMap);
+
+      await SyncOperation.create({
+        operationId: operation.id,
+        user: req.user._id,
+        operation: operation.operation,
+        status: "success",
+        result,
+      });
+
       success.push(result);
     } catch (error) {
       failed.push({
