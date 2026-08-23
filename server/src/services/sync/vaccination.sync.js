@@ -1,16 +1,15 @@
 import { Patient } from "../../models/patient.models.js";
 import { Vaccination } from "../../models/vaccination.models.js";
 import { VaccinationStatusEnum } from "../../utils/constants.js";
+import { ApiError } from "../../utils/api-error.js";
 import {
   buildSuccessResult,
   ensureExists,
   isLatestUpdate,
   replaceTempIds,
-  saveIdMapping,
 } from "../../utils/sync.helpers.js";
 
-// create vaccination
-
+// CREATE VACCINATION
 export const syncCreateVaccination = async (operation, user, idMap) => {
   const { id, payload } = operation;
 
@@ -18,6 +17,10 @@ export const syncCreateVaccination = async (operation, user, idMap) => {
 
   const { patientId, ...vaccinationData } = data;
 
+  /*
+   * Verify that the patient belongs to
+   * the logged-in ASHA.
+   */
   const patient = await Patient.findOne({
     _id: patientId,
     assignedASHA: user._id,
@@ -26,10 +29,72 @@ export const syncCreateVaccination = async (operation, user, idMap) => {
 
   ensureExists(patient, "Patient not found or access denied");
 
-  vaccinationData.status = VaccinationStatusEnum.COMPLETED;
+  /*
+   * Only allow client-controlled vaccination fields.
+   *
+   * status, patient and administeredBy are
+   * controlled by the server.
+   */
+  const allowedFields = [
+    "vaccine",
+    "customVaccine",
+    "doseNumber",
+    "vaccinationDate",
+    "nextDueDate",
+    "notes",
+  ];
+
+  const safeVaccinationData = {};
+
+  for (const key of allowedFields) {
+    if (vaccinationData[key] !== undefined) {
+      safeVaccinationData[key] = vaccinationData[key];
+    }
+  }
+
+  /*
+   * A CREATE vaccination represents an
+   * administered vaccination.
+   */
+  safeVaccinationData.status = VaccinationStatusEnum.COMPLETED;
+
+  /*
+   * Prevent recording the same vaccine dose
+   * twice for the same active patient.
+   *
+   * For example:
+   * BCG + doseNumber 1
+   * BCG + doseNumber 1  <-- reject
+   */
+  const duplicateQuery = {
+    patient: patientId,
+    doseNumber: safeVaccinationData.doseNumber,
+    isActive: true,
+  };
+
+  /*
+   * For normal vaccines, identify the dose using
+   * the vaccine field.
+   */
+  if (safeVaccinationData.vaccine) {
+    duplicateQuery.vaccine = safeVaccinationData.vaccine;
+  }
+
+  /*
+   * For custom vaccines, use customVaccine.
+   */
+  if (safeVaccinationData.customVaccine) {
+    duplicateQuery.customVaccine = safeVaccinationData.customVaccine;
+  }
+
+  const existingVaccination = await Vaccination.findOne(duplicateQuery);
+
+  if (existingVaccination) {
+    throw new ApiError(409, "This vaccine dose has already been recorded");
+  }
 
   const vaccination = await Vaccination.create({
-    ...vaccinationData,
+    ...safeVaccinationData,
     patient: patientId,
     administeredBy: user._id,
   });
@@ -41,8 +106,7 @@ export const syncCreateVaccination = async (operation, user, idMap) => {
   });
 };
 
-// update vaccination
-
+// UPDATE VACCINATION
 export const syncUpdateVaccination = async (operation, user, idMap) => {
   const { id, payload, timestamp } = operation;
 
@@ -59,28 +123,82 @@ export const syncUpdateVaccination = async (operation, user, idMap) => {
 
   ensureExists(vaccination, "Vaccination not found or access denied");
 
+  /*
+   * Last-write-wins conflict resolution.
+   */
   if (!isLatestUpdate(timestamp, vaccination.updatedAt)) {
-    return buildSuccessREsult({
+    return buildSuccessResult({
       id,
       operation: operation.operation,
+      mongoId: vaccination._id,
       skipped: true,
     });
   }
 
-  if (
-    updateData.nextDueDate &&
-    updateData.status === VaccinationStatusEnum.PENDING
-  ) {
-    if (new Date(updateData.nextDueDate) < new Date()) {
-      updateData.status = VaccinationStatusEnum.OVERDUE;
+  const allowedFields = [
+    "vaccine",
+    "customVaccine",
+    "doseNumber",
+    "vaccinationDate",
+    "nextDueDate",
+    "status",
+    "notes",
+  ];
+
+  for (const key of allowedFields) {
+    if (updateData[key] !== undefined) {
+      vaccination[key] = updateData[key];
     }
   }
 
-  Object.keys(updateData).forEach((key) => {
-    if (updateDate[key] !== undefined) {
-      vaccination[key] = updateDate[key];
+  /*
+   * Automatically calculate overdue status
+   * when a pending vaccination's due date has passed.
+   */
+  if (
+    vaccination.status === VaccinationStatusEnum.PENDING &&
+    vaccination.nextDueDate
+  ) {
+    if (new Date(vaccination.nextDueDate) < new Date()) {
+      vaccination.status = VaccinationStatusEnum.OVERDUE;
     }
-  });
+  }
+
+  /*
+   * Prevent changing this vaccination into
+   * a duplicate dose.
+   */
+  if (
+    updateData.vaccine !== undefined ||
+    updateData.customVaccine !== undefined ||
+    updateData.doseNumber !== undefined
+  ) {
+    const duplicateQuery = {
+      patient: vaccination.patient,
+      doseNumber: vaccination.doseNumber,
+      isActive: true,
+      _id: {
+        $ne: vaccination._id,
+      },
+    };
+
+    if (vaccination.vaccine) {
+      duplicateQuery.vaccine = vaccination.vaccine;
+    }
+
+    if (vaccination.customVaccine) {
+      duplicateQuery.customVaccine = vaccination.customVaccine;
+    }
+
+    const existingVaccination = await Vaccination.findOne(duplicateQuery);
+
+    if (existingVaccination) {
+      throw new ApiError(
+        409,
+        "Another vaccination with the same vaccine dose already exists",
+      );
+    }
+  }
 
   await vaccination.save();
 
