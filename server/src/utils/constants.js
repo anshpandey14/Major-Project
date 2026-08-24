@@ -1,4 +1,5 @@
 export const UserRolesEnum = {
+  IT_ADMIN: "it_admin",
   ASHA: "asha",
   PHC: "phc",
 };

@@ -32,17 +32,12 @@ const generateAccessAndRefreshToken = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { email, password, fullName, village } = req.body;
 
-  const existedUser = await User.findOne({
-    email,
-  });
-
-  if (existedUser) {
-    throw new ApiError(409, "User with this email already exists");
-  }
+  const existedUser = await User.findOne({ email: email.toLowerCase() });
+  if (existedUser) throw new ApiError(409, "User with this email already exists");
 
   const user = await User.create({
     fullName,
-    email,
+    email: email.toLowerCase(),
     password,
     role: UserRolesEnum.ASHA,
     village,
@@ -50,23 +45,30 @@ const registerUser = asyncHandler(async (req, res) => {
     mustChangePassword: true,
   });
 
-  const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken",
-  );
+  const createdUser = await User.findById(user._id).select("-password -refreshToken");
+  if (!createdUser) throw new ApiError(500, "Something went wrong while registering a user");
 
-  if (!createdUser) {
-    throw new ApiError(500, "Something went wrong while registering a user");
-  }
+  return res.status(201).json(new ApiResponse(201, { user: createdUser }, "ASHA account created successfully"));
+});
 
-  return res
-    .status(201)
-    .json(
-      new ApiResponse(
-        201,
-        { user: createdUser },
-        "ASHA account created successfully",
-      ),
-    );
+const registerPHC = asyncHandler(async (req, res) => {
+  const { email, password, fullName, village } = req.body;
+
+  const existedUser = await User.findOne({ email: email.toLowerCase() });
+  if (existedUser) throw new ApiError(409, "User with this email already exists");
+
+  const user = await User.create({
+    fullName,
+    email: email.toLowerCase(),
+    password,
+    role: UserRolesEnum.PHC,
+    village,
+    isProfileComplete: false,
+    mustChangePassword: true,
+  });
+
+  const createdUser = await User.findById(user._id).select("-password -refreshToken");
+  return res.status(201).json(new ApiResponse(201, { user: createdUser }, "PHC account created successfully"));
 });
 
 const login = asyncHandler(async (req, res) => {
@@ -344,8 +346,12 @@ const resetUserPassword = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
-  if (user.role !== UserRolesEnum.ASHA) {
-    throw new ApiError(403, "Only ASHA accounts can be reset");
+  if (req.user.role === UserRolesEnum.PHC && user.role !== UserRolesEnum.ASHA) {
+    throw new ApiError(403, "PHC can reset only ASHA accounts");
+  }
+
+  if (req.user.role === UserRolesEnum.IT_ADMIN && user.role !== UserRolesEnum.PHC) {
+    throw new ApiError(403, "IT administrators can reset only PHC accounts");
   }
 
   user.password = newPassword;
@@ -374,4 +380,5 @@ export {
   uploadAvatar,
   completeProfile,
   resetUserPassword,
+  registerPHC,
 };

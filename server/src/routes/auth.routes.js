@@ -9,6 +9,7 @@ import {
   uploadAvatar,
   completeProfile,
   resetUserPassword,
+  registerPHC,
 } from "../controllers/auth.controllers.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
@@ -18,7 +19,7 @@ import {
   completeProfileValidator,
   resetUserPasswordValidator,
 } from "../validators/user.validators.js";
-import { verifyJWT, requirePHC } from "../middlewares/auth.middleware.js";
+import { verifyJWT, requirePHC, requireITAdmin, requirePHCOrITAdmin } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
@@ -27,6 +28,10 @@ const router = Router();
 
 router.route("/login").post(userLoginValidator(), validate, login);
 router.route("/refresh-token").post(refreshAccessToken);
+
+router
+  .route("/register-phc")
+  .post(verifyJWT, requireITAdmin, userRegisterValidator(), validate, registerPHC);
 
 // ==================== AUTHENTICATED ====================
 
@@ -56,7 +61,7 @@ router
   .route("/reset-password")
   .post(
     verifyJWT,
-    requirePHC,
+    requirePHCOrITAdmin,
     resetUserPasswordValidator(),
     validate,
     resetUserPassword,

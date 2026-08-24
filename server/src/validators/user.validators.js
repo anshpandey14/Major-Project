@@ -77,3 +77,10 @@ export const resetUserPasswordValidator = () => [
 
   passwordValidator("newPassword"),
 ];
+
+
+export const phcRegisterValidator = () => [
+  emailValidator(),
+  passwordValidator(),
+  fullNameValidator(),
+];

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requirePHC, verifyJWT } from "../middlewares/auth.middleware.js";
+import { requirePHC, verifyJWT, requireClinicalUser } from "../middlewares/auth.middleware.js";
 import {
   createPatient,
   deletePatient,
@@ -24,18 +24,19 @@ const router = Router();
 
 router
   .route("/")
-  .post(verifyJWT, requirePasswordChange, createPatientValidator(), validate, createPatient)
-  .get(verifyJWT, requirePasswordChange, getAllPatientsValidator(), validate, getAllPatients);
-router.route("/stats").get(verifyJWT, requirePasswordChange, getStats);
+  .post(verifyJWT, requireClinicalUser, requirePasswordChange, createPatientValidator(), validate, createPatient)
+  .get(verifyJWT, requireClinicalUser, requirePasswordChange, getAllPatientsValidator(), validate, getAllPatients);
+router.route("/stats").get(verifyJWT, requireClinicalUser, requirePasswordChange, getStats);
 router
   .route("/:patientId/timeline")
-  .get(verifyJWT, requirePasswordChange, getTimelineValidator(), validate, getTimeline);
+  .get(verifyJWT, requireClinicalUser, requirePasswordChange, getTimelineValidator(), validate, getTimeline);
 router
   .route("/:patientId")
-  .get(verifyJWT, requirePasswordChange, getPatientByIdValidator(), validate, getPatientById)
-  .patch(verifyJWT, requirePasswordChange, updatePatientValidator(), validate, updatePatient)
+  .get(verifyJWT, requireClinicalUser, requirePasswordChange, getPatientByIdValidator(), validate, getPatientById)
+  .patch(verifyJWT, requireClinicalUser, requirePasswordChange, updatePatientValidator(), validate, updatePatient)
   .delete(
     verifyJWT,
+    requireClinicalUser,
     requirePasswordChange,
     requirePHC,
     deletePatientValidator(),

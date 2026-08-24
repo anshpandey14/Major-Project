@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requirePHC, verifyJWT } from "../middlewares/auth.middleware.js";
+import { requirePHC, verifyJWT, requireClinicalUser } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import { requirePasswordChange } from "../middlewares/password.middleware.js";
 import {
@@ -22,21 +22,21 @@ import {
 
 const router = Router();
 
-router.route("/stats").get(verifyJWT, requirePasswordChange, validate, getANCStats);
+router.route("/stats").get(verifyJWT, requireClinicalUser, requirePasswordChange, validate, getANCStats);
 
 router
   .route("/high-risk")
-  .get(verifyJWT, requirePasswordChange, getHighRiskANCValidator(), validate, getHighRiskANC);
+  .get(verifyJWT, requireClinicalUser, requirePasswordChange, getHighRiskANCValidator(), validate, getHighRiskANC);
 
 router
   .route("/:patientId")
-  .post(verifyJWT, requirePasswordChange, createANCValidator(), validate, createAnc)
-  .get(verifyJWT, requirePasswordChange, getAllANCValidator(), validate, getAllANC);
+  .post(verifyJWT, requireClinicalUser, requirePasswordChange, createANCValidator(), validate, createAnc)
+  .get(verifyJWT, requireClinicalUser, requirePasswordChange, getAllANCValidator(), validate, getAllANC);
 
 router
   .route("/:patientId/:ancId")
-  .get(verifyJWT, requirePasswordChange, getANCByIdValidator(), validate, getANCById)
-  .put(verifyJWT, requirePasswordChange, updateANCValidator(), validate, updateANC)
-  .delete(verifyJWT, requirePasswordChange, requirePHC, deleteANCValidator(), validate, deleteANC);
+  .get(verifyJWT, requireClinicalUser, requirePasswordChange, getANCByIdValidator(), validate, getANCById)
+  .put(verifyJWT, requireClinicalUser, requirePasswordChange, updateANCValidator(), validate, updateANC)
+  .delete(verifyJWT, requireClinicalUser, requirePasswordChange, requirePHC, deleteANCValidator(), validate, deleteANC);
 
 export default router;

@@ -43,3 +43,29 @@ export const requirePHC = asyncHandler(async (req, res, next) => {
   }
   next();
 });
+
+
+export const requireITAdmin = asyncHandler(async (req, res, next) => {
+  if (!req.user) throw new ApiError(401, "Unauthorized");
+  if (req.user.role !== UserRolesEnum.IT_ADMIN) {
+    throw new ApiError(403, "Only IT administrators can perform this action");
+  }
+  next();
+});
+
+export const requireClinicalUser = asyncHandler(async (req, res, next) => {
+  if (!req.user) throw new ApiError(401, "Unauthorized");
+  if (![UserRolesEnum.ASHA, UserRolesEnum.PHC].includes(req.user.role)) {
+    throw new ApiError(403, "Clinical access is restricted to ASHA and PHC users");
+  }
+  next();
+});
+
+
+export const requirePHCOrITAdmin = asyncHandler(async (req, res, next) => {
+  if (!req.user) throw new ApiError(401, "Unauthorized");
+  if (![UserRolesEnum.PHC, UserRolesEnum.IT_ADMIN].includes(req.user.role)) {
+    throw new ApiError(403, "Only PHC or IT administrators can perform this action");
+  }
+  next();
+});
