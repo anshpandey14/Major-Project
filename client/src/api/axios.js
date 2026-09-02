@@ -15,7 +15,7 @@ export const setAccessToken = (token) => {
 };
 
 export const getAccessToken = () => {
-  accessToken = token;
+  return accessToken;
 };
 
 export const clearAccessToken = () => {
@@ -88,7 +88,7 @@ api.interceptors.response.use(
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
       return api(originalRequest);
-    } catch (refreshToken) {
+    } catch (refreshError) {
       clearAccessToken();
       notifyRefreshSubscribers(null);
       return Promise.reject(refreshError);

@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./protectedRoute";
+import Login from "@/pages/auth/Login";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -15,7 +16,7 @@ const AppRouter = () => {
       <Routes>
         {/* PUBLIC */}
 
-        <Route path="/login" element={<PlaceHolder title="Login" />} />
+        <Route path="/login" element={<Login />} />
 
         <Route
           path="/unauthorized"
@@ -75,7 +76,7 @@ const AppRouter = () => {
 
           {/* IT ADMIN */}
 
-          <Route element={<ProtectedRoute allowedRoles={["it admin"]} />}>
+          <Route element={<ProtectedRoute allowedRoles={["it_admin"]} />}>
             <Route
               path="/admin/dashboard"
               element={<PlaceHolder title="Admin Dashboard" />}

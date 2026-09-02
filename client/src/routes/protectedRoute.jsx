@@ -7,7 +7,7 @@ const ProtectedRoute = ({
 }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
 
-  const location = useLocation;
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -16,6 +16,12 @@ const ProtectedRoute = ({
       </div>
     );
   }
+
+  // console.log({
+  //   user,
+  //   isAuthenticated,
+  //   isLoading,
+  // });
 
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace state={{ from: location }} />;

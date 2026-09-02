@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { ApiError } from "./api-error.js";
+import "dotenv/config";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,

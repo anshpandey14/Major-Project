@@ -4,9 +4,9 @@ import { setAccessToken, clearAccessToken } from "@/api/axios";
 
 const authContext = createContext(null);
 
-export const authProvider = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = !!user;
 
   const refreshSession = async () => {
@@ -39,7 +39,8 @@ export const authProvider = ({ children }) => {
 
         setUser(userResponse?.data?.user || userResponse?.data);
       } catch (error) {
-        await refreshSession();
+        clearAccessToken();
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -88,7 +89,7 @@ export const authProvider = ({ children }) => {
     updateUser,
   };
 
-  return <authContext.Provider vlaue={value}>{children}</authContext.Provider>;
+  return <authContext.Provider value={value}>{children}</authContext.Provider>;
 };
 
 export const useAuth = () => {
