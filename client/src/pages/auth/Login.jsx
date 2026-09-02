@@ -132,7 +132,7 @@ const Login = () => {
                 name="email"
                 type="email"
                 placeholder="Enter your email"
-                value={formDataEvent.email}
+                value={formData.email}
                 onChange={handleChange}
                 disabled={isSubmitting}
                 autoComplete="email"
