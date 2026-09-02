@@ -13,7 +13,7 @@ import {
 export const createVaccinationValidator = () => [
   mongoIdValidator("patientId"),
 
-  body.custom((value) => {
+  body().custom((value) => {
     if (!value.vaccine && !value.customVaccine?.trim()) {
       throw new Error("Either vaccine or customVaccine is required");
     }

@@ -9,7 +9,7 @@ export const generateAIResponse = async (prompt) => {
   try {
     const response = await ai.models.generateContent({
       model: process.env.GEMINI_MODEL,
-      content: prompt,
+      contents: prompt,
       config: {
         temperature: 0.2,
         maxOutputTokens: 1024,

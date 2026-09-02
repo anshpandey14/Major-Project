@@ -193,7 +193,7 @@ const generateRiskAssessment = asyncHandler(async (req, res) => {
     try {
       parsedResponse = JSON.parse(response);
     } catch {
-      throw new ApiError(500, "Claude returned invalid json");
+      throw new ApiError(500, "Gemini returned invalid json");
     }
 
     const validRiskLevels = ["low", "medium", "high"];

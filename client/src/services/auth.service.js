@@ -15,7 +15,7 @@ const authService = {
     const response = await api.get("/auth/current-user");
     return response.data;
   },
-  
+
   register: async (data) => {
     const response = await api.post("/auth/register", data);
     return response.data;
@@ -27,12 +27,12 @@ const authService = {
   },
 
   changePassword: async (data) => {
-    const response = await api.put("/auth/complete-profile", data);
+    const response = await api.post("/auth/change-password", data);
     return response.data;
   },
 
   completeProfile: async (data) => {
-    const response = await api.post("/auth/change-password", data);
+    const response = await api.put("/auth/complete-profile", data);
     return response.data;
   },
 
