@@ -1,6 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./protectedRoute";
 import Login from "@/pages/auth/Login";
+import completeProfile from "@/pages/auth/completeProfile";
+import ChangePassword from "@/pages/auth/ChangePassword";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -26,15 +28,9 @@ const AppRouter = () => {
         {/* AUTHENTICATED */}
 
         <Route element={<ProtectedRoute />}>
-          <Route
-            path="/change-password"
-            element={<PlaceHolder title="Change Password" />}
-          />
+          <Route path="/change-password" element={<ChangePassword />} />
 
-          <Route
-            path="/complete-profile"
-            element={<PlaceHolder title="Complete Profile" />}
-          />
+          <Route path="/complete-profile" element={<completeProfile />} />
 
           {/* ASHA */}
 
