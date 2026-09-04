@@ -1,8 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./protectedRoute";
 import Login from "@/pages/auth/Login";
-import completeProfile from "@/pages/auth/completeProfile";
+import CompleteProfile from "@/pages/auth/completeProfile";
 import ChangePassword from "@/pages/auth/ChangePassword";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -30,58 +31,60 @@ const AppRouter = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/change-password" element={<ChangePassword />} />
 
-          <Route path="/complete-profile" element={<completeProfile />} />
+          <Route path="/complete-profile" element={<CompleteProfile />} />
 
-          {/* ASHA */}
+          {/* Dashboard Layout */}
+          <Route element={<DashboardLayout />}>
+            {/* ASHA */}
 
-          <Route element={<ProtectedRoute allowedRoles={["asha"]} />}>
-            <Route
-              path="/asha/dashboard"
-              element={<PlaceHolder title="ASHA Dashboard" />}
-            />
+            <Route element={<ProtectedRoute allowedRoles={["asha"]} />}>
+              <Route
+                path="/asha/dashboard"
+                element={<PlaceHolder title="ASHA Dashboard" />}
+              />
 
-            <Route
-              path="/asha/patients"
-              element={<PlaceHolder title="ASHA Patients" />}
-            />
+              <Route
+                path="/asha/patients"
+                element={<PlaceHolder title="ASHA Patients" />}
+              />
 
-            <Route
-              path="/asha/patients/:patientId"
-              element={<PlaceHolder title="Patient Profile" />}
-            />
-          </Route>
+              <Route
+                path="/asha/patients/:patientId"
+                element={<PlaceHolder title="Patient Profile" />}
+              />
+            </Route>
 
-          {/* PHC */}
+            {/* PHC */}
 
-          <Route element={<ProtectedRoute allowedRoles={["phc"]} />}>
-            <Route
-              path="/phc/dashboard"
-              element={<PlaceHolder title="PHC Dashboard" />}
-            />
+            <Route element={<ProtectedRoute allowedRoles={["phc"]} />}>
+              <Route
+                path="/phc/dashboard"
+                element={<PlaceHolder title="PHC Dashboard" />}
+              />
 
-            <Route
-              path="/phc/patients"
-              element={<PlaceHolder title="PHC Patients" />}
-            />
+              <Route
+                path="/phc/patients"
+                element={<PlaceHolder title="PHC Patients" />}
+              />
 
-            <Route
-              path="/phc/patients/:patientId"
-              element={<PlaceHolder title="Patient Profile" />}
-            />
-          </Route>
+              <Route
+                path="/phc/patients/:patientId"
+                element={<PlaceHolder title="Patient Profile" />}
+              />
+            </Route>
 
-          {/* IT ADMIN */}
+            {/* IT ADMIN */}
+            <Route element={<ProtectedRoute allowedRoles={["it_admin"]} />}>
+              <Route
+                path="/admin/dashboard"
+                element={<PlaceHolder title="Admin Dashboard" />}
+              />
 
-          <Route element={<ProtectedRoute allowedRoles={["it_admin"]} />}>
-            <Route
-              path="/admin/dashboard"
-              element={<PlaceHolder title="Admin Dashboard" />}
-            />
-
-            <Route
-              path="/admin/register-phc"
-              element={<PlaceHolder title="Register PHC" />}
-            />
+              <Route
+                path="/admin/register-phc"
+                element={<PlaceHolder title="Register PHC" />}
+              />
+            </Route>
           </Route>
         </Route>
 

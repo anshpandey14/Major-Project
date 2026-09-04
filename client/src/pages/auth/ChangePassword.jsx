@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ChangePassword = () => {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
 
   const [formData, setFormData] = useState({
     oldPassword: "",
@@ -65,7 +65,7 @@ const ChangePassword = () => {
     const { oldPassword, newPassword, confirmPassword } = formData;
 
     if (!oldPassword || !newPassword || !confirmPassword) {
-      setError("All fields are required.");
+      setError("All password fields are required.");
       return;
     }
 
@@ -90,6 +90,7 @@ const ChangePassword = () => {
       const response = await authService.changePassword({
         oldPassword,
         newPassword,
+        confirmPassword,
       });
 
       const updatedUser = response?.data?.user || response?.user;
@@ -100,13 +101,17 @@ const ChangePassword = () => {
         updateUser({ mustChangePassword: false });
       }
 
-      setSuccess("Password changed successfully");
+      setSuccess("Password changed successfully. Please login again.");
 
       setFormData({
         oldPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+
+      clearAccessToken();
+
+      await logout();
 
       setTimeout(() => {
         const currentUser = updatedUser

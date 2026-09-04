@@ -14,13 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const completeProfile = () => {
+const CompleteProfile = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
 
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || "",
-    village: user?.village || "",
+    username: user?.username || "",
     phone: user?.phone || "",
   });
 
@@ -59,22 +58,23 @@ const completeProfile = () => {
 
     setError("");
 
-    const fullName = formData.fullName.trim();
-    const village = formData.village.trim();
+    const username = formData.username.trim().toLowerCase();
     const phone = formData.phone.trim();
 
-    if (!fullName) {
-      setError("Full Name is required");
+    if (!username) {
+      setError("Username is required");
       return;
     }
 
-    if (fullName.length < 2) {
-      setError("fullName must be at least 2 characters long.");
+    if (username.length < 3) {
+      setError("Username must be at least 3 characters long.");
       return;
     }
 
-    if (!village) {
-      setError("village is required");
+    if (!/^[a-z0-9_]+$/.test(username)) {
+      setError(
+        "Username can contain only lowercase letters, numbers and underscores.",
+      );
       return;
     }
 
@@ -91,19 +91,15 @@ const completeProfile = () => {
     try {
       setIsLoading(true);
       const response = await authService.completeProfile({
-        fullName,
-        village,
+        username,
         phone,
       });
 
-      const updatedUser = response?.data?.user || response?.user;
-      const currentUser = updatedUser || {
-        ...user,
-        fullName,
-        village,
-        phone,
-        isProfileComplete: true,
-      };
+      const updatedUser = response?.data?.user;
+
+      if (!updatedUser) {
+        throw new Error("Updated user was not returned by the server.");
+      }
 
       updateUser(currentUser);
 
@@ -111,8 +107,8 @@ const completeProfile = () => {
     } catch (error) {
       const message =
         error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        "Unable to complet profile. Please try again";
+        error?.message ||
+        "Unable to complete profile. Please try again";
       setError(message);
     } finally {
       setIsLoading(false);
@@ -125,7 +121,7 @@ const completeProfile = () => {
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-2xl">Complete your profile</CardTitle>
           <CardDescription>
-            Please provide your details before continuing.
+            Set your username and phone number before continuing.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -136,29 +132,21 @@ const completeProfile = () => {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="fullName">FullName</Label>
+              <Label htmlFor="username">FuUsernamellName</Label>
               <Input
-                id="fullName"
-                name="fullName"
+                id="username"
+                name="username"
                 type="text"
-                placeholder="Enter your full Name"
-                value={formData.fullName}
+                placeholder="Enter your username"
+                value={formData.username}
                 onChange={handleChange}
                 autoComplete="name"
                 disabled={isLoading}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="village">Village</Label>
-              <Input
-                id="village"
-                name="village"
-                type="text"
-                placeholder="Enter your village"
-                value={formData.village}
-                onChange={handleChange}
-                disabled={isLoading}
-              />
+
+              <p className="text-xs text-muted-foreground">
+                Use lowercase letters, numbers and underscores.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -191,4 +179,4 @@ const completeProfile = () => {
     </div>
   );
 };
-export default completeProfile;
+export default CompleteProfile;
