@@ -9,6 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
@@ -30,7 +31,7 @@ const HeaderUserMenu = () => {
       .split(" ")
       .map((name) => name[0])
       .join("")
-      .splice(0, 2)
+      .slice(0, 2)
       .toUpperCase();
   };
 
@@ -52,23 +53,27 @@ const HeaderUserMenu = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative size-10 rounder-full">
-          <Avatar className="size-9">
-            <AvatarFallback>{getInitials()}</AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" className="relative size-10 rounded-full">
+            <Avatar className="size-9">
+              <AvatarFallback>{getInitials()}</AvatarFallback>
+            </Avatar>
+          </Button>
+        }
+      />
 
       <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel>
-          <div className="flex flex-col gap-1">
-            <span className="font-medium">{user?.fullName || "User"}</span>
-            <span className="etxt-xs font-normal text-muted-foreground">
-              {getRoleName()}
-            </span>
-          </div>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <div className="flex flex-col gap-1">
+              <span className="font-medium">{user?.fullName || "User"}</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {getRoleName()}
+              </span>
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
 

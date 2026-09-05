@@ -100,7 +100,7 @@ const AppSidebar = () => {
           <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <HeartPulse className="size-5" />
           </div>
-          <div className="felx flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
+          <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
             <span className="turncate text-sm font-semibold">Rural Health</span>
             <span className="truncate text-xs text-muted-foreground">
               Management System

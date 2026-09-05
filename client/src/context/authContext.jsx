@@ -35,6 +35,18 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Restore access token using the httpOnly refresh-token cookie
+        const response = await authService.refreshToken();
+
+        const newAccessToken = response?.data?.accessToken;
+
+        if (!newAccessToken) {
+          throw new Error("No access token received");
+        }
+
+        setAccessToken(newAccessToken);
+
+        // Now current-user has a valid Authorization header
         const userResponse = await authService.getCurrentUser();
 
         setUser(userResponse?.data?.user || userResponse?.data);
@@ -45,6 +57,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(false);
       }
     };
+
     initializeAuth();
   }, []);
 
