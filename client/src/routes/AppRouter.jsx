@@ -4,6 +4,7 @@ import Login from "@/pages/auth/Login";
 import CompleteProfile from "@/pages/auth/completeProfile";
 import ChangePassword from "@/pages/auth/ChangePassword";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -75,10 +76,7 @@ const AppRouter = () => {
 
             {/* IT ADMIN */}
             <Route element={<ProtectedRoute allowedRoles={["it_admin"]} />}>
-              <Route
-                path="/admin/dashboard"
-                element={<PlaceHolder title="Admin Dashboard" />}
-              />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
               <Route
                 path="/admin/register-phc"
