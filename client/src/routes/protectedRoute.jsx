@@ -6,7 +6,6 @@ const ProtectedRoute = ({
   requireCompleteProfile = true,
 }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
-
   const location = useLocation();
 
   if (isLoading) {
@@ -17,24 +16,22 @@ const ProtectedRoute = ({
     );
   }
 
-  // console.log({
-  //   user,
-  //   isAuthenticated,
-  //   isLoading,
-  // });
-
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
+  // Password change has highest priority.
   if (user.mustChangePassword && location.pathname !== "/change-password") {
     return <Navigate to="/change-password" replace />;
   }
 
+  // Do not force profile completion while already on either
+  // account-setup page.
   if (
     requireCompleteProfile &&
     !user.isProfileComplete &&
-    location.pathname !== "/complete-profile"
+    location.pathname !== "/complete-profile" &&
+    location.pathname !== "/change-password"
   ) {
     return <Navigate to="/complete-profile" replace />;
   }

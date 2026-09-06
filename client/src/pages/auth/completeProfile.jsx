@@ -26,7 +26,7 @@ const CompleteProfile = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (r) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -101,9 +101,9 @@ const CompleteProfile = () => {
         throw new Error("Updated user was not returned by the server.");
       }
 
-      updateUser(currentUser);
+      updateUser(updatedUser);
 
-      navigateToDashboard(currentUser);
+      navigateToDashboard(updateUser);
     } catch (error) {
       const message =
         error?.response?.data?.message ||
@@ -117,7 +117,7 @@ const CompleteProfile = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4 py-8">
-      <Card className="w-full max-w-wd">
+      <Card className="w-full max-w-md">
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-2xl">Complete your profile</CardTitle>
           <CardDescription>
@@ -132,7 +132,7 @@ const CompleteProfile = () => {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="username">FuUsernamellName</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
                 name="username"
@@ -140,7 +140,7 @@ const CompleteProfile = () => {
                 placeholder="Enter your username"
                 value={formData.username}
                 onChange={handleChange}
-                autoComplete="name"
+                autoComplete="username"
                 disabled={isLoading}
               />
 
@@ -157,8 +157,8 @@ const CompleteProfile = () => {
                 name="phone"
                 type="tel"
                 placeholder="Enter 10-digit phone number"
-                value={FormDataEvent.phone}
-                onchange={handleChange}
+                value={formData.phone}
+                onChange={handleChange}
                 maxLength={10}
                 inputMode="numeric"
                 autoComplete="tel"

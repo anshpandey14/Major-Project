@@ -54,7 +54,7 @@ const AppSidebar = () => {
   const phcItems = [
     {
       title: "Patients",
-      url: "/phc/dashboard",
+      url: "/phc/patients",
       icon: Users,
     },
   ];

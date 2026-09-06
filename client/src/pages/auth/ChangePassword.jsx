@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import authService from "@/services/auth.service";
+import { clearAccessToken } from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,7 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ChangePassword = () => {
   const navigate = useNavigate();
-  const { user, updateUser, logout } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const [formData, setFormData] = useState({
     oldPassword: "",
@@ -25,7 +26,7 @@ const ChangePassword = () => {
   });
 
   const [error, setError] = useState("");
-  const [success, , setSuccess] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -109,23 +110,12 @@ const ChangePassword = () => {
         confirmPassword: "",
       });
 
+      // Password change invalidates the refresh token on the backend.
+      // Clear the in-memory access token and send the user to login.
       clearAccessToken();
 
-      await logout();
-
       setTimeout(() => {
-        const currentUser = updatedUser
-          ? updatedUser
-          : { ...user, mustChangePassword: false };
-
-        if (!currentUser?.isProfileComplete) {
-          navigate("/complete-profile", {
-            replace: true,
-          });
-
-          return;
-        }
-        navigateToDashboard(currentUser);
+        navigate("/login", { replace: true });
       }, 700);
     } catch (error) {
       const message =
