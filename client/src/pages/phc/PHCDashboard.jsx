@@ -56,10 +56,10 @@ const PHCDashboard = () => {
           overdueResponse,
           highRiskResponse,
         ] = await Promise.all([
-          api.get("/patients/stats"),
+          api.get("/patient/stats"),
           api.get("/vaccination/stats"),
           api.get("/anc/stats"),
-          api.get("/vaccinations/overdue?limit=5"),
+          api.get("/vaccination/overdue?limit=5"),
           api.get("/anc/high-risk?limit=5"),
         ]);
 
@@ -186,8 +186,12 @@ const PHCDashboard = () => {
               </p>
             </div>
 
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/phc/patients">View Patients</Link>
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link to="/phc/patients" />}
+            >
+              View Patients
             </Button>
           </CardHeader>
 
@@ -235,8 +239,12 @@ const PHCDashboard = () => {
               </p>
             </div>
 
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/phc/patients">View Patients</Link>
+            <Button
+              variant="outline"
+              size="sm"
+              render={<Link to="/phc/patients" />}
+            >
+              View Patients
             </Button>
           </CardHeader>
 
@@ -281,18 +289,14 @@ const PHCDashboard = () => {
         </CardHeader>
 
         <CardContent className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link to="/phc/patients">
-              <Users className="mr-2 size-4" />
-              View Patients
-            </Link>
+          <Button render={<Link to="/phc/patients" />}>
+            <Users className="mr-2 size-4" />
+            View Patients
           </Button>
 
-          <Button variant="outline" asChild>
-            <Link to="/phc/patients">
-              <ClipboardList className="mr-2 size-4" />
-              Patient Records
-            </Link>
+          <Button variant="outline" render={<Link to="/phc/patients" />}>
+            <ClipboardList className="mr-2 size-4" />
+            Patient Records
           </Button>
         </CardContent>
       </Card>

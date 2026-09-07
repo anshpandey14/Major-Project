@@ -103,7 +103,7 @@ const CompleteProfile = () => {
 
       updateUser(updatedUser);
 
-      navigateToDashboard(updateUser);
+      navigateToDashboard(updatedUser);
     } catch (error) {
       const message =
         error?.response?.data?.message ||

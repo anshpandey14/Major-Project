@@ -84,7 +84,7 @@ const AppSidebar = () => {
 
   const isActive = (url) => {
     if (
-      url === "asha/dashboard" ||
+      url === "/asha/dashboard" ||
       url === "/phc/dashboard" ||
       url === "/admin/dashboard"
     ) {
@@ -101,7 +101,9 @@ const AppSidebar = () => {
             <HeartPulse className="size-5" />
           </div>
           <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
-            <span className="turncate text-sm font-semibold">Rural Health</span>
+            <span className="truncate  text-sm font-semibold">
+              Rural Health
+            </span>
             <span className="truncate text-xs text-muted-foreground">
               Management System
             </span>
@@ -155,8 +157,8 @@ const AppSidebar = () => {
                     <Link
                       to={
                         role === "asha"
-                          ? "/asha/Vaccinations"
-                          : "/phc/Vaccinations"
+                          ? "/asha/vaccinations"
+                          : "/phc/vaccinations"
                       }
                     >
                       <Syringe />
