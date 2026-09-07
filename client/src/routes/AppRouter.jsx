@@ -6,6 +6,7 @@ import ChangePassword from "@/pages/auth/ChangePassword";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import RegisterPHC from "@/pages/admin/RegisterPHC";
+import PHCDashboard from "@/pages/phc/PHCDashboard";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -59,10 +60,7 @@ const AppRouter = () => {
             {/* PHC */}
 
             <Route element={<ProtectedRoute allowedRoles={["phc"]} />}>
-              <Route
-                path="/phc/dashboard"
-                element={<PlaceHolder title="PHC Dashboard" />}
-              />
+              <Route path="/phc/dashboard" element={<PHCDashboard />} />
 
               <Route
                 path="/phc/patients"
