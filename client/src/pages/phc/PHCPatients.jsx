@@ -12,11 +12,11 @@ import {
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@base-ui/react";
+import { Input } from "@/components/ui/input";
 
 const PHCPatients = () => {
   const navigate = useNavigate();
-  const [patients, setPatients] = useState();
+  const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
@@ -35,7 +35,7 @@ const PHCPatients = () => {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/patients", {
+      const response = await api.get("/patient", {
         params: {
           page,
           limit: 10,
@@ -58,7 +58,7 @@ const PHCPatients = () => {
       console.error("Failed to fetch patients:", err);
       setError(
         err?.response?.data?.message ||
-          "Failed toload patients. Please try again",
+          "Failed to load patients. Please try again",
       );
     } finally {
       setLoading(false);
@@ -165,44 +165,48 @@ const PHCPatients = () => {
                   </thead>
                   <tbody>
                     {patients.map((patient) => {
-                      <tr
-                        key={patient._id}
-                        className="border-b last:border:0 hover:bg-muted/50"
-                      >
-                        <td className="px-4 py-4">
-                          <div>
-                            <p className="font-medium">{patient.fullName}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {patient._id}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4">{patient.phone || "-"}</td>
-                        <td className="px-4 py-4">{patient.village || "-"}</td>
-                        <td className="px-4 py-4">
-                          {getGenderLabel(patient.gender)}
-                        </td>
-                        <td className="px-4 py-4">
-                          {getPregnancyLabel(patient)}
-                        </td>
-                        <td className="px-4 py-4">
-                          {patient.assignedASHA?.fullName ||
-                            patient.assignedASHA?.username ||
-                            "-"}
-                        </td>
-                        <td className="px-4 py-4 text-right">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              navigate(`/phc/patients/${patient._id}`)
-                            }
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Button>
-                        </td>
-                      </tr>;
+                      return (
+                        <tr
+                          key={patient._id}
+                          className="border-b last:border:0 hover:bg-muted/50"
+                        >
+                          <td className="px-4 py-4">
+                            <div>
+                              <p className="font-medium">{patient.fullName}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {patient._id}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">{patient.phone || "-"}</td>
+                          <td className="px-4 py-4">
+                            {patient.village || "-"}
+                          </td>
+                          <td className="px-4 py-4">
+                            {getGenderLabel(patient.gender)}
+                          </td>
+                          <td className="px-4 py-4">
+                            {getPregnancyLabel(patient)}
+                          </td>
+                          <td className="px-4 py-4">
+                            {patient.assignedASHA?.fullName ||
+                              patient.assignedASHA?.username ||
+                              "-"}
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                navigate(`/phc/patients/${patient._id}`)
+                              }
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </Button>
+                          </td>
+                        </tr>
+                      );
                     })}
                   </tbody>
                 </table>
@@ -224,7 +228,7 @@ const PHCPatients = () => {
                       )}
                     </div>
 
-                    <div className="mt-4 grig grid-cols-2 gap-3 text-sm">
+                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <p className="text-xs text-muted-foreground">Village</p>
                         <p>{patient.village || "-"}</p>
@@ -257,7 +261,7 @@ const PHCPatients = () => {
                     <Button
                       className="mt-4 w-full"
                       variant="outline"
-                      onClick={() => navigate(`/ph/patients/${patient._id}`)}
+                      onClick={() => navigate(`/phc/patients/${patient._id}`)}
                     >
                       <Eye className="mr-2 h-4 w-4" />
                       View Patient
@@ -287,7 +291,7 @@ const PHCPatients = () => {
                     variant="outline"
                     size="sm"
                     disabled={page >= (pagination.totalPages || 1)}
-                    onClick={() => setPage((current) => current - 1)}
+                    onClick={() => setPage((current) => current + 1)}
                   >
                     <span className="hidden sm:inline">Next</span>
                     <ChevronRight className="h-4 w-4" />
