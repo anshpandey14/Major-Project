@@ -8,6 +8,7 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import RegisterPHC from "@/pages/admin/RegisterPHC";
 import PHCDashboard from "@/pages/phc/PHCDashboard";
 import PHCPatients from "@/pages/phc/PHCPatients";
+import PHCPatientDetails from "@/pages/phc/PHCPatientDetails";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -67,7 +68,7 @@ const AppRouter = () => {
 
               <Route
                 path="/phc/patients/:patientId"
-                element={<PlaceHolder title="Patient Profile" />}
+                element={<PHCPatientDetails />}
               />
             </Route>
 
