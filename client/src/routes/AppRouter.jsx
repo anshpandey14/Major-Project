@@ -10,6 +10,8 @@ import PHCDashboard from "@/pages/phc/PHCDashboard";
 import PHCPatients from "@/pages/phc/PHCPatients";
 import PHCPatientDetails from "@/pages/phc/PHCPatientDetails";
 import PHCPatientVisits from "@/pages/phc/PHCPatientVisits";
+import PHCPatientVaccinations from "@/pages/phc/PHCPatientVaccinations";
+import PHCPatientANC from "@/pages/phc/PHCPatientANC";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -75,6 +77,11 @@ const AppRouter = () => {
               <Route
                 path="/phc/patients/:patientId/visits"
                 element={<PHCPatientVisits />}
+              />
+
+              <Route
+                path="/phc/patients/:patientId/vaccinations"
+                element={<PHCPatientVaccinations />}
               />
             </Route>
 
