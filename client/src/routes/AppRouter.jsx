@@ -83,6 +83,11 @@ const AppRouter = () => {
                 path="/phc/patients/:patientId/vaccinations"
                 element={<PHCPatientVaccinations />}
               />
+
+              <Route
+                path="/phc/patients/:patientId/anc"
+                element={<PHCPatientANC />}
+              />
             </Route>
 
             {/* IT ADMIN */}
