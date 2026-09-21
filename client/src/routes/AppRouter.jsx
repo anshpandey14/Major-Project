@@ -14,6 +14,7 @@ import PHCPatientVaccinations from "@/pages/phc/PHCPatientVaccinations";
 import PHCPatientANC from "@/pages/phc/PHCPatientANC";
 import ASHADashboard from "@/pages/asha/ASHADashboard";
 import ASHAPatients from "@/pages/asha/ASHAPatients";
+import AddPatient from "@/pages/asha/AddPatient";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -51,6 +52,8 @@ const AppRouter = () => {
               <Route path="/asha/dashboard" element={<ASHADashboard />} />
 
               <Route path="/asha/patients" element={<ASHAPatients />} />
+
+              <Route path="/asha/patients/add" element={<AddPatient />} />
 
               <Route
                 path="/asha/patients/:patientId"
