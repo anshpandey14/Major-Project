@@ -153,7 +153,7 @@ const EditPatient = () => {
       </div>
 
       {error && (
-        <div className="rounded-lg bortder border-destructive/20 bg-destructive/01 p-4 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -164,7 +164,7 @@ const EditPatient = () => {
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
             </CardHeader>
-            <CardContent className="sapce-y-5">
+            <CardContent className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name</Label>
                 <Input
@@ -237,7 +237,7 @@ const EditPatient = () => {
             </CardHeader>
 
             <CardContent className="space-y-5">
-              <div className="sapce-y-2">
+              <div className="space-y-2">
                 <Label htmlFor="weight">Weight (kg)</Label>
                 <Input
                   id="weight"
@@ -250,7 +250,7 @@ const EditPatient = () => {
                 />
               </div>
 
-              <div className="sapce-y-2">
+              <div className="space-y-2">
                 <Label htmlFor="height">Height (cm)</Label>
                 <Input
                   id="height"
