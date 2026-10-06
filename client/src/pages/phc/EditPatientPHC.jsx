@@ -21,7 +21,7 @@ const bloodGroupOptions = [
   "Unknown",
 ];
 
-const EditPatient = () => {
+const EditPatientPHC = () => {
   const { patientId } = useParams();
   const navigate = useNavigate();
 
@@ -352,4 +352,4 @@ const EditPatient = () => {
   );
 };
 
-export default EditPatient;
+export default EditPatientPHC;
