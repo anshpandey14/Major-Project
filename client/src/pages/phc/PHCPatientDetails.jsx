@@ -6,12 +6,11 @@ import {
   Baby,
   CalendarDays,
   ClipboardList,
-  Droplets,
   HeartPulse,
   Loader2,
   Syringe,
   UserRound,
-  Weight,
+  Trash2,
 } from "lucide-react";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
@@ -106,6 +105,25 @@ const PHCPatientDetails = () => {
         return "ANC Visit";
       default:
         return "Health Record";
+    }
+  };
+
+  const handleDeletePatient = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this patient? This action will remove the patient from the active patient list.",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setLoading(true);
+
+      await api.delete(`/patients/${patientId}`);
+
+      navigate("/phc/patients");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to delete patient");
+      setLoading(false);
     }
   };
 
