@@ -24,6 +24,7 @@ import EditVisit from "@/pages/asha/EditVisit";
 import EditVaccination from "@/pages/asha/EditVaccination";
 import EditANC from "@/pages/asha/EditANC";
 import EditPatientPHC from "@/pages/phc/EditPatientPHC";
+import EditVisitPHC from "@/pages/phc/EditVisitPHC";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -108,18 +109,14 @@ const AppRouter = () => {
             {/* PHC */}
 
             <Route element={<ProtectedRoute allowedRoles={["phc"]} />}>
-              <Route path="/phc/dashboard" element={<PHCDashboard />} />
-
-              <Route path="/phc/patients" element={<PHCPatients />} />
-
               <Route
                 path="/phc/patients/:patientId/edit"
                 element={<EditPatientPHC />}
               />
 
               <Route
-                path="/phc/patients/:patientId"
-                element={<PHCPatientDetails />}
+                path="/phc/patients/:patientId/visits/:visitId/edit"
+                element={<EditVisitPHC />}
               />
 
               <Route
@@ -136,6 +133,15 @@ const AppRouter = () => {
                 path="/phc/patients/:patientId/anc"
                 element={<PHCPatientANC />}
               />
+
+              <Route
+                path="/phc/patients/:patientId"
+                element={<PHCPatientDetails />}
+              />
+
+              <Route path="/phc/patients" element={<PHCPatients />} />
+
+              <Route path="/phc/dashboard" element={<PHCDashboard />} />
             </Route>
 
             {/* IT ADMIN */}
