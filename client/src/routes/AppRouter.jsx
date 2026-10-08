@@ -25,6 +25,7 @@ import EditVaccination from "@/pages/asha/EditVaccination";
 import EditANC from "@/pages/asha/EditANC";
 import EditPatientPHC from "@/pages/phc/EditPatientPHC";
 import EditVisitPHC from "@/pages/phc/EditVisitPHC";
+import EditVaccinationPHC from "@/pages/phc/EditVaccinationPHC";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -122,6 +123,11 @@ const AppRouter = () => {
               <Route
                 path="/phc/patients/:patientId/visits"
                 element={<PHCPatientVisits />}
+              />
+
+              <Route
+                path="/phc/patients/:patientId/vaccinations/:vaccinationId/edit"
+                element={<EditVaccinationPHC />}
               />
 
               <Route

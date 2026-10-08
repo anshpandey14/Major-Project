@@ -8,19 +8,22 @@ import {
   HeartPulse,
   Loader2,
   UserRound,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PHCPatientANC = () => {
-  const { patientId } = useParams();
+  const { patientId, ancId } = useParams();
   const navigate = useNavigate();
 
   const [patient, setPatient] = useState(null);
   const [ancRecords, setAncRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchAncRecords = async () => {
     try {
@@ -117,6 +120,27 @@ const PHCPatientANC = () => {
   const highRiskCount = ancRecords.filter((record) => record.isHighRisk).length;
 
   const latestANC = ancRecords[0];
+
+  const handleDeleteVisit = async (visitId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this ANC record.",
+    );
+
+    if (!confirmed) return;
+    try {
+      setIsDeleting(true);
+
+      await api.delete(`/vaccinations/${patientId}/${ancId}`);
+
+      setVaccinations((prev) => prev.filter((record) => record._id !== ancId));
+    } catch (err) {
+      console.error(err);
+
+      alert(err?.response?.data?.message || "Failed to delete ANC record.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
