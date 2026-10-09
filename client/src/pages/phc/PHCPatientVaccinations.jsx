@@ -7,19 +7,22 @@ import {
   Loader2,
   Syringe,
   UserRound,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import api from "@/api/axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PHCPatientVaccinations = () => {
-  const { patientId } = useParams();
+  const { patientId, vaccinationId } = useParams();
   const navigate = useNavigate();
 
   const [patient, setPatient] = useState(null);
   const [vaccinations, setVaccinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchVaccinations = async () => {
     try {
@@ -128,6 +131,29 @@ const PHCPatientVaccinations = () => {
   const overdueCount = vaccinations.filter(
     (item) => item.status === "overdue",
   ).length;
+
+  const handleDeleteVisit = async (visitId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this vaccination.",
+    );
+
+    if (!confirmed) return;
+    try {
+      setIsDeleting(true);
+
+      await api.delete(`/vaccinations/${patientId}/${vaccinationId}`);
+
+      setVaccinations((prev) =>
+        prev.filter((vaccination) => vaccination._id !== vaccinationId),
+      );
+    } catch (err) {
+      console.error(err);
+
+      alert(err?.response?.data?.message || "Failed to delete vaccination.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="sapce-y-6">
