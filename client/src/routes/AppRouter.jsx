@@ -27,6 +27,7 @@ import EditPatientPHC from "@/pages/phc/EditPatientPHC";
 import EditVisitPHC from "@/pages/phc/EditVisitPHC";
 import EditVaccinationPHC from "@/pages/phc/EditVaccinationPHC";
 import EditANCPHC from "@/pages/phc/EditANCPHC";
+import ResetUserPassword from "@/pages/admin/ResetUserPassword";
 
 const PlaceHolder = ({ title }) => {
   return (
@@ -159,6 +160,11 @@ const AppRouter = () => {
             {/* IT ADMIN */}
             <Route element={<ProtectedRoute allowedRoles={["it_admin"]} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
+              <Route
+                path="/admin/reset-password"
+                element={<ResetUserPassword />}
+              />
 
               <Route path="/admin/register-phc" element={<RegisterPHC />} />
             </Route>
