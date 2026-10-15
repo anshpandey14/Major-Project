@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import api from "@/api/axios";
+import { getPatients } from "@/services/patient.repository";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,18 +50,14 @@ const ASHAPatients = () => {
         },
       });
 
-      const data = response?.data?.data || response?.data;
+      const data = await getPatients({
+        page,
+        limit: 10,
+        search,
+      });
 
-      setPatients(data?.patients || []);
-
-      setPagination(
-        data?.pagination || {
-          total: 0,
-          totalPages: 1,
-          currentPage: page,
-          limit: 10,
-        },
-      );
+      setPatients(data.patients || []);
+      setPagination(data.pagination);
     } catch (err) {
       console.error("Failed to fetch ASHA patients:", err);
 
