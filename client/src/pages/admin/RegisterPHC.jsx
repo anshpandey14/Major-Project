@@ -105,7 +105,7 @@ const RegisterPHC = () => {
         </Button>
 
         <div className="flex items-center gap-3">
-          <div className="flex sixe-10 items-center justify-center rounded-lg border bg-background">
+          <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
             <Building2 className="size-5" />
           </div>
 

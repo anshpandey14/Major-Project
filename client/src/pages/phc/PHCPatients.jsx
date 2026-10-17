@@ -35,7 +35,7 @@ const PHCPatients = () => {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/patient", {
+      const response = await api.get("/patients", {
         params: {
           page,
           limit: 10,

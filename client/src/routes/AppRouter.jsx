@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./protectedRoute";
 import Login from "@/pages/auth/Login";
-import CompleteProfile from "@/pages/auth/completeProfile";
+import CompleteProfile from "@/pages/auth/CompleteProfile";
 import ChangePassword from "@/pages/auth/ChangePassword";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";

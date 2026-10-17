@@ -60,7 +60,7 @@ const EditANC = () => {
           trimester: anc.trimester ?? "",
           weight: anc.weight ?? "",
           systolic: anc?.bloodPressure?.systolic ?? "",
-          diastolic: anc.bloodPressure.diastolic ?? "",
+          diastolic: anc?.bloodPressure?.diastolic ?? "",
           hemoglobin: anc.hemoglobin ?? "",
           fetalHeartRate: anc.fetalHeartRate ?? "",
           nextVisitDate: anc.nextVisitDate
@@ -119,7 +119,7 @@ const EditANC = () => {
       }
 
       if (formData.fetalHeartRate !== "") {
-        payload.fetalHeartRate = NUmber(formData.fetalHeartRate);
+        payload.fetalHeartRate = Number(formData.fetalHeartRate);
       }
 
       if (formData.nextVisitDate) {
@@ -154,7 +154,7 @@ const EditANC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(`/asha/pateints/${patientId}/anc`)}
+            onClick={() => navigate(`/asha/patients/${patientId}/anc`)}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -178,7 +178,7 @@ const EditANC = () => {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate(`/asha/pateints/${patientId}/anc`)}
+          onClick={() => navigate(`/asha/patients/${patientId}/anc`)}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>

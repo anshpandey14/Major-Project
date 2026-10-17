@@ -93,7 +93,7 @@ const EditANCPHC = () => {
         trimester: formData.trimester,
         weight: formData.weight ? Number(formData.weight) : undefined,
         bloodPressure: {
-          systolic: formData.systolic ? Number(FormData.systolic) : undefined,
+          systolic: formData.systolic ? Number(formDataormData.systolic) : undefined,
           diastolic: formData.diastolic
             ? Number(formData.diastolic)
             : undefined,

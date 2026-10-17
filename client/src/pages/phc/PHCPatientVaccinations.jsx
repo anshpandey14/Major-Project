@@ -34,7 +34,7 @@ const PHCPatientVaccinations = () => {
         api.get(`/vaccinations/${patientId}`),
       ]);
 
-      const patientData = patient?.data?.data || patientResponse?.data;
+      const patientData = patientResponse?.data?.data || patientResponse?.data;
       const vaccinationData =
         vaccinationResponse?.data?.data || vaccinationResponse?.data;
       setPatient(patientData?.patient || patientData);
@@ -111,7 +111,7 @@ const PHCPatientVaccinations = () => {
 
         <Button
           variant="outline"
-          onClick={() => NavigateEvent(`/phc/patients/${patientId}`)}
+          onClick={() => navigate(`/phc/patients/${patientId}`)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Patient
@@ -132,7 +132,7 @@ const PHCPatientVaccinations = () => {
     (item) => item.status === "overdue",
   ).length;
 
-  const handleDeleteVisit = async (visitId) => {
+  const handleDeleteVaccination = async (visitId) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this vaccination.",
     );
@@ -156,7 +156,7 @@ const PHCPatientVaccinations = () => {
   };
 
   return (
-    <div className="sapce-y-6">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button
           variant="outline"

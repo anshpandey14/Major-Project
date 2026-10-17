@@ -306,13 +306,13 @@ const PHCPatientDetails = () => {
           icon={Syringe}
           title="Vaccinations"
           description="view vaccination records"
-          onClick={() => navigate(`/phc/pateints/${patientId}/vaccinations`)}
+          onClick={() => navigate(`/phc/patients/${patientId}/vaccinations`)}
         />
         <ActionCard
           icon={HeartPulse}
           title="ANC Records"
           description="View Pregnancy records"
-          onClick={() => navigate(`/phc/pateints/${patientId}/anc`)}
+          onClick={() => navigate(`/phc/patients/${patientId}/anc`)}
         />
       </div>
     </div>

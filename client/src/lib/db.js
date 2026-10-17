@@ -5,8 +5,8 @@ const DB_VERSION = 1;
 
 export const dbPromise = openDB(DB_NAME, DB_VERSION, {
   upgrade(db) {
-    if (!db.objectStoreNames.contains("SyncQueue")) {
-      const store = db.createObjectStore("SyncQueue", {
+    if (!db.objectStoreNames.contains("syncQueue")) {
+      const store = db.createObjectStore("syncQueue", {
         keyPath: "id",
       });
 

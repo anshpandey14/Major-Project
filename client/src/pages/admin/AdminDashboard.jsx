@@ -37,7 +37,7 @@ const AdminDashboard = () => {
 
             <div>
               <p className="text-sm font-medium">Account</p>
-              <p className="text-sm text-muted-foreground">{user?.emaill}</p>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
         </CardContent>

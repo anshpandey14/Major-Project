@@ -97,7 +97,7 @@ const ASHAPatientVaccinations = () => {
       doseNumber: "",
       vaccinationDate: "",
       nextDueDate: "",
-      status: "completed",
+      status: "",
       notes: "",
     });
   };

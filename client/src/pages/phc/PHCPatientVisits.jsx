@@ -96,7 +96,7 @@ const PHCPatientVisits = () => {
 
       await api.delete(`/visits/${patientId}/${visitId}`);
 
-      setVisits((prev) => prev.filter((visit) => visit._id) !== visitId);
+      setVisits((prev) => prev.filter((visit) => visit._id !== visitId));
     } catch (err) {
       console.error(err);
 
@@ -169,7 +169,7 @@ const PHCPatientVisits = () => {
               </p>
             </div>
           ) : (
-            <div className="sapce-y-4">
+            <div className="space-y-4">
               {visits.map((visit) => (
                 <div key={visit._id} className="rounded-lg border p-4">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

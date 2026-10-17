@@ -13,7 +13,7 @@ const vaccineOptions = [
   "OPV1",
   "OPV2",
   "OPV3",
-  "HEPB",
+  "HepB",
   "DPT1",
   "DPT2",
   "DPT3",
@@ -84,7 +84,7 @@ const EditVaccination = () => {
       }
     };
     fetchVaccination();
-  }, [patientId]);
+  }, [patientId,vaccinationId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,7 +103,7 @@ const EditVaccination = () => {
       setError("");
 
       const payload = {
-        doseNumber: NUmber(formData.doseNumber),
+        doseNumber: Number(formData.doseNumber),
         vaccinationDate: formData.vaccinationDate,
         nextDueDate: formData.nextDueDate || undefined,
         status: formData.status,
@@ -111,14 +111,14 @@ const EditVaccination = () => {
       };
 
       if (formData.vaccine === "custom") {
-        payload.vacc = "";
+        payload.vaccine = "";
         payload.customVaccine = formData.customVaccine.trim();
       } else {
         payload.vaccine = formData.vaccine;
         payload.customVaccine = "";
       }
 
-      await api.put(`/vaccination/${patientId}/${vaccinationId}`, payload);
+      await api.put(`/vaccinations/${patientId}/${vaccinationId}`, payload);
 
       navigate(`/asha/patients/${patientId}/vaccinations`);
     } catch (err) {
@@ -176,7 +176,7 @@ const EditVaccination = () => {
 
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label htmlfor="vaccine">Vaccine</Label>
+                <Label htmlFor="vaccine">Vaccine</Label>
 
                 <select
                   id="vaccine"
@@ -198,7 +198,7 @@ const EditVaccination = () => {
 
               {formData.vaccine === "custom" && (
                 <div className="space-y-2">
-                  <Label htmlfor="customVaccine">Custom Vaccine</Label>
+                  <Label htmlFor="customVaccine">Custom Vaccine</Label>
                   <Input
                     id="customVaccine"
                     name="customVaccine"
@@ -211,7 +211,7 @@ const EditVaccination = () => {
               )}
 
               <div className="space-y-2">
-                <Label htmlfor="doseNumber">Dose Number</Label>
+                <Label htmlFor="doseNumber">Dose Number</Label>
 
                 <Input
                   id="doseNumber"
@@ -234,7 +234,7 @@ const EditVaccination = () => {
 
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label htmlfor="vaccinationDate">Vaccination Date</Label>
+                <Label htmlFor="vaccinationDate">Vaccination Date</Label>
 
                 <Input
                   id="vaccinationDate"
@@ -247,7 +247,7 @@ const EditVaccination = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlfor="nextDueDate">Next Due Date</Label>
+                <Label htmlFor="nextDueDate">Next Due Date</Label>
 
                 <Input
                   id="nextDueDate"
@@ -259,7 +259,7 @@ const EditVaccination = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlfor="status">Status</Label>
+                <Label htmlFor="status">Status</Label>
 
                 <select
                   id="status"

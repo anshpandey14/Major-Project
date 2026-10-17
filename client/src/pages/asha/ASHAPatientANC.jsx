@@ -563,7 +563,7 @@ const ASHAPatientANC = () => {
 
                       <p className="mt-1 font-medium">
                         {record.trimester
-                          ? `Trimester ${record.gestationalWeek}`
+                          ? `Trimester ${record.trimester}`
                           : "-"}
                       </p>
                     </div>
@@ -620,8 +620,8 @@ const ASHAPatientANC = () => {
                         Recorder By
                       </p>
                       <p className="mt-1 font-medium">
-                        {record.recorderBy?.fullName ||
-                          record.recorderBy?.username ||
+                        {record.conductedBy?.fullName ||
+                          record.conductedBy?.username ||
                           "-"}
                       </p>
                     </div>

@@ -87,7 +87,7 @@ const ResetUserPassword = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlfor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">New Password</Label>
               <Input
                 id="newPassword"
                 name="newPassword"
@@ -98,7 +98,7 @@ const ResetUserPassword = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlfor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="newPassword">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 name="confirmPassword"

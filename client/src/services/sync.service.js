@@ -4,6 +4,7 @@ import {
   removeSyncItem,
   updateSyncItem,
 } from "@/lib/syncQueue";
+import { replaceLocalIdReferences } from "@/lib/idMapping";
 
 export const syncPendingOperations = async () => {
   const operations = await getPendingSyncItems();
@@ -26,12 +27,21 @@ export const syncPendingOperations = async () => {
     const success = result?.success || [];
     const failedOperations = result?.failedOperations || [];
 
-    for (const operation of operations) {
-      const successful = success.find((item) => item.id === operation.id);
+    for (const successful of success) {
+      const queuedOperation = operations.find(
+        (operation) => operation.id === successful.id,
+      );
 
-      if (successful) {
-        await removeSyncItem(operation.id);
+      if (!queuedOperation) continue;
+
+      const localId = queuedOperation.payload?.localId;
+      const mongoId = successful.mongoId;
+
+      if (localId && mongoId) {
+        await replaceLocalIdReferences(localId, mongoId);
       }
+
+      await removeSyncItem(successful.id);
     }
 
     for (const failed of failedOperations) {

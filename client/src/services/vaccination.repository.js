@@ -65,7 +65,7 @@ export const createVaccination = async (patientId, vaccinationData) => {
         localId,
         patientId,
         vaccine: vaccinationData.vaccine,
-        customVaccine: customVaccine,
+        customVaccine: vaccinationData.customVaccine,
         doseNumber: vaccinationData.doseNumber,
         vaccinationDate: vaccinationData.vaccinationDate,
         nextDueDate: vaccinationData.nextDueDate,
@@ -94,7 +94,7 @@ export const createVaccination = async (patientId, vaccinationData) => {
 
   return {
     ...data,
-    offline: true,
+    offline: false,
   };
 };
 
@@ -108,7 +108,7 @@ export const updateVaccination = async (patientId, vaccinationId, updates) => {
 
     await addToSyncQueue({
       operation: SyncOperationEnum.UPDATE_VACCINATION,
-      paylaod: {
+      payload: {
         vaccinationId,
         patientId,
         ...updates,

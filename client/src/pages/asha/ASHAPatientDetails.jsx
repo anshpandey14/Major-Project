@@ -31,7 +31,7 @@ const ASHAPatientDetails = () => {
         setError("");
 
         const [patientResponse, timelineResponse] = await Promise.all([
-          api.get(`/patietns/${patientId}`),
+          api.get(`/patients/${patientId}`),
           api.get(`/patients/${patientId}/timeline`),
         ]);
 
@@ -87,7 +87,7 @@ const ASHAPatientDetails = () => {
     ) {
       age--;
     }
-    retrun`${age} years`;
+    return`${age} years`;
   };
 
   const getTimelineIcon = (type) => {

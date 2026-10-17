@@ -78,7 +78,7 @@ const PHCPatientANC = () => {
     }
 
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 x-2.5 py-1 text-xs font-medium text-green-700">
+      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
         <CheckCircle2 className="h-3.5 w-3.5" />
         Normal
       </span>
@@ -121,7 +121,7 @@ const PHCPatientANC = () => {
 
   const latestANC = ancRecords[0];
 
-  const handleDeleteVisit = async (visitId) => {
+  const handleDeleteANC = async (visitId) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this ANC record.",
     );
@@ -130,9 +130,9 @@ const PHCPatientANC = () => {
     try {
       setIsDeleting(true);
 
-      await api.delete(`/vaccinations/${patientId}/${ancId}`);
+      await api.delete(`/anc/${patientId}/${ancId}`);
 
-      setVaccinations((prev) => prev.filter((record) => record._id !== ancId));
+      setAncRecords((prev) => prev.filter((record) => record._id !== ancId));
     } catch (err) {
       console.error(err);
 
@@ -232,7 +232,7 @@ const PHCPatientANC = () => {
                     record.isHighRisk ? "border-red-200" : ""
                   }`}
                 >
-                  <div className="felx flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <div className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4 text-muted-foreground" />

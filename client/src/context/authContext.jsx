@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import authService from "@/services/auth.service";
 import { setAccessToken, clearAccessToken } from "@/api/axios";
+import { startSyncManager } from "@/services/syncManager";
 
 const authContext = createContext(null);
 
@@ -60,6 +61,13 @@ export const AuthProvider = ({ children }) => {
 
     initializeAuth();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const cleanup = startSyncManager();
+
+    return cleanup;
+  }, [user]);
 
   const login = async (credentials) => {
     const response = await authService.login(credentials);

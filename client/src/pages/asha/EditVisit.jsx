@@ -56,7 +56,7 @@ const EditVisit = () => {
           additionalSymptoms: visit.additionalSymptoms || "",
           notes: visit.notes || "",
           followUpDate: visit.followUpDate
-            ? visit.followUpDate.split["T"][0]
+            ? visit.followUpDate.split("T")[0]
             : "",
         });
       } catch (err) {
@@ -95,7 +95,7 @@ const EditVisit = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.prevetDefault();
+    e.preventDefault();
 
     try {
       setIsSaving(true);
@@ -167,7 +167,7 @@ const EditVisit = () => {
 
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label htmlfor="visitDate">Visit Date</Label>
+                <Label htmlFor="visitDate">Visit Date</Label>
                 <Input
                   id="visitDate"
                   name="visitDate"
@@ -179,7 +179,7 @@ const EditVisit = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlfor="weight">weight (kg)</Label>
+                <Label htmlFor="weight">weight (kg)</Label>
                 <Input
                   id="weight"
                   name="weight"
@@ -192,7 +192,7 @@ const EditVisit = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlfor="followUpDate">Follow-Up Date</Label>
+                <Label htmlFor="followUpDate">Follow-Up Date</Label>
                 <Input
                   id="followUpDate"
                   name="followUpDate"
