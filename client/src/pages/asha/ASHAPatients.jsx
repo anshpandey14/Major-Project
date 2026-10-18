@@ -11,7 +11,6 @@ import {
   UserRound,
 } from "lucide-react";
 
-import api from "@/api/axios";
 import { getPatients } from "@/services/patient.repository";
 
 import { Button } from "@/components/ui/button";
@@ -40,16 +39,6 @@ const ASHAPatients = () => {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/patients", {
-        params: {
-          page,
-          limit: 10,
-          ...(search.trim() && {
-            search: search.trim(),
-          }),
-        },
-      });
-
       const data = await getPatients({
         page,
         limit: 10,
@@ -57,7 +46,12 @@ const ASHAPatients = () => {
       });
 
       setPatients(data.patients || []);
-      setPagination(data.pagination);
+      setPagination({
+        total: data.pagination?.totalPatients ?? data.pagination?.total ?? 0,
+        totalPages: data.pagination?.totalPages ?? 1,
+        currentPage: data.pagination?.currentPage ?? data.pagination?.page ?? page,
+        limit: data.pagination?.limit ?? 10,
+      });
     } catch (err) {
       console.error("Failed to fetch ASHA patients:", err);
 

@@ -10,7 +10,7 @@ import {
 
 // CREATE PATIENT
 export const syncCreatePatient = async (operation, user, idMap) => {
-  const { id, payload } = operation;
+  const { id, payload, timestamp } = operation;
 
   const data = replaceTempIds(payload, idMap);
 
@@ -64,9 +64,11 @@ export const syncCreatePatient = async (operation, user, idMap) => {
     });
   }
 
+  const operationDate = new Date(timestamp);
   const patient = await Patient.create({
     ...patientData,
     assignedASHA: user._id,
+    ...(Number.isNaN(operationDate.getTime()) ? {} : { createdAt: operationDate, updatedAt: operationDate }),
   });
 
   /*

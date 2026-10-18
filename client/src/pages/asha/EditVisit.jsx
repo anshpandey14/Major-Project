@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
-import api from "@/api/axios";
+import { getVisit, updateVisit } from "@/services/visit.repository";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -42,8 +42,8 @@ const EditVisit = () => {
       try {
         setIsLoading(true);
         setError("");
-        const response = await api.get(`/visits/${patientId}/${visitId}`);
-        const visit = response?.data?.data || response?.data?.visit;
+        const result = await getVisit(patientId, visitId);
+        const visit = result.visit;
 
         if (!visit) {
           throw new Error("Visit data not found");
@@ -113,12 +113,12 @@ const EditVisit = () => {
         payload.weight = Number(formData.weight);
       }
 
-      await api.put(`/visits/${patientId}/${visitId}`, payload);
+      await updateVisit(patientId, visitId, payload);
 
       navigate(`/asha/patients/${patientId}/visits`);
     } catch (err) {
       setError(
-        err?.message?.data?.message || err?.message || "Failed to update visit",
+        err?.response?.data?.message || err?.message || "Failed to update visit",
       );
     } finally {
       setIsSaving(false);

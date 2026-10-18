@@ -31,8 +31,8 @@ const EditVisitPHC = () => {
         setIsLoading(true);
         setError("");
         const [patientResponse, visitResponse] = await Promise.all([
-          api.get(`/patients/${patientId}`),
-          api.get(`/visits/${patientId}/${visitId}`),
+          api.get(`/patient/${patientId}`),
+          api.get(`/visit/${patientId}/${visitId}`),
         ]);
 
         const patientData =
@@ -79,7 +79,7 @@ const EditVisitPHC = () => {
       setIsSaving(true);
       setError("");
 
-      await api.put(`/visits/${patientId}/${visitId}`, {
+      await api.put(`/visit/${patientId}/${visitId}`, {
         visitDate: formData.visitDate,
         weight: formData.weight ? Number(formData.weight) : undefined,
         additionalSymptoms: formData.additionalSymptoms,

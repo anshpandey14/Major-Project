@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
-import api from "@/api/axios";
+import { getVaccination, updateVaccination } from "@/services/vaccination.repository";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,19 +9,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const vaccineOptions = [
   "BCG",
-  "OPV0",
-  "OPV1",
-  "OPV2",
-  "OPV3",
-  "HepB",
-  "DPT1",
-  "DPT2",
-  "DPT3",
+  "OPV",
+  "Hepatitis B",
+  "DPT",
   "Measles",
   "Vitamin A",
-  "TT1",
-  "TT2",
-  "Booster",
+  "TT",
 ];
 
 const statusOptions = ["pending", "completed", "overdue"];
@@ -50,18 +43,15 @@ const EditVaccination = () => {
         setIsLoading(true);
         setError("");
 
-        const response = await api.get(
-          `/vaccinations/${patientId}/${vaccinationId}`,
-        );
-
-        const vaccination = response?.data?.data || response?.data?.vaccination;
+        const result = await getVaccination(patientId, vaccinationId);
+        const vaccination = result.vaccination;
 
         if (!vaccination) {
           throw new Error("Vaccination data not found");
         }
 
         setFormData({
-          vaccine: vaccination.vaccine || "",
+          vaccine: vaccination.customVaccine ? "custom" : vaccination.vaccine || "",
           customVaccine: vaccination.customVaccine || "",
           doseNumber: vaccination.doseNumber ?? "",
           vaccinationDate: vaccination.vaccinationDate
@@ -75,7 +65,7 @@ const EditVaccination = () => {
         });
       } catch (err) {
         setError(
-          err?.response?.data?.mesage ||
+          err?.response?.data?.message ||
             err?.message ||
             "Failed to load vaccination",
         );
@@ -111,14 +101,13 @@ const EditVaccination = () => {
       };
 
       if (formData.vaccine === "custom") {
-        payload.vaccine = "";
         payload.customVaccine = formData.customVaccine.trim();
       } else {
         payload.vaccine = formData.vaccine;
         payload.customVaccine = "";
       }
 
-      await api.put(`/vaccinations/${patientId}/${vaccinationId}`, payload);
+      await updateVaccination(patientId, vaccinationId, payload);
 
       navigate(`/asha/patients/${patientId}/vaccinations`);
     } catch (err) {

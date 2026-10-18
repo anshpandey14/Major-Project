@@ -8,7 +8,8 @@ import {
   Plus,
   TriangleAlert,
 } from "lucide-react";
-import api from "@/api/axios";
+import { getPatient } from "@/services/patient.repository";
+import { getANCs, createANC } from "@/services/anc.repository";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -27,7 +28,6 @@ const ASHAPatientANC = () => {
   const [formData, setFormData] = useState({
     visitDate: "",
     gestationalWeek: "",
-    trimester: "",
     weight: "",
     systolic: "",
     diastolic: "",
@@ -46,26 +46,14 @@ const ASHAPatientANC = () => {
       setLoading(true);
       setError("");
 
-      const [patientResponse, ancResponse] = await Promise.all([
-        api.get(`/patients/${patientId}`),
-        api.get(`/anc/${patientId}`),
+      const [patientResult, ancResult] = await Promise.all([
+        getPatient(patientId),
+        getANCs(patientId),
       ]);
 
-      const patientData =
-        patientResponse?.data?.data?.patient ||
-        patientResponse?.data?.patient ||
-        patientResponse?.data?.data;
-
-      const ancData =
-        ancResponse?.data?.data?.anc ||
-        ancResponse?.data?.data?.ancRecords ||
-        ancResponse?.data?.anc ||
-        ancResponse?.data?.ancRecords ||
-        ancResponse?.data?.data ||
-        [];
-
-      setPatient(patientData);
-      setAncRecords(Array.isArray(ancData) ? ancData : []);
+      setPatient(patientResult.patient);
+      const records = ancResult.ancRecords ?? ancResult.anc ?? [];
+      setAncRecords(Array.isArray(records) ? records : []);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load ANC records.");
     } finally {
@@ -86,8 +74,7 @@ const ASHAPatientANC = () => {
     setFormData({
       visitDate: "",
       gestationalWeek: "",
-      trimester: "",
-      weight: "",
+        weight: "",
       systolic: "",
       diastolic: "",
       hemoglobin: "",
@@ -107,7 +94,6 @@ const ASHAPatientANC = () => {
       const payload = {
         visitDate: formData.visitDate,
         gestationalWeek: Number(formData.gestationalWeek),
-        trimester: Number(formData.trimester),
         bloodPressure: {
           systolic: Number(formData.systolic),
           diastolic: Number(formData.diastolic),
@@ -128,7 +114,7 @@ const ASHAPatientANC = () => {
         payload.nextVisitDate = formData.nextVisitDate;
       }
 
-      await api.post(`/anc/${patientId}`, payload);
+      await createANC(patientId, payload);
 
       resetForm();
       setShowForm(false);
@@ -335,7 +321,7 @@ const ASHAPatientANC = () => {
                     <Input
                       id="gestationalWeek"
                       name="gestationalWeek"
-                      type="Number"
+                      type="number"
                       min="0"
                       value={formData.gestationalWeek}
                       onChange={handleChange}
@@ -343,53 +329,13 @@ const ASHAPatientANC = () => {
                       required
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="trimester">Trimester</Label>
-
-                    <select
-                      id="trimester"
-                      name="trimester"
-                      value={formData.trimester}
-                      onChange={handleChange}
-                      className="flex h-10 w-full rounded-md border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-                      required
-                    >
-                      <option value="">Select trimester</option>
-                      <option value="1">First trimester</option>
-                      <option value="2">Second trimester</option>
-                      <option value="3">Third trimester</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-semibold">Measurements</h3>
-
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="weight">Weight (Kg)</Label>
-
-                    <Input
-                      id="weight"
-                      name="weight"
-                      type="Number"
-                      min="0"
-                      step="0.1"
-                      value={formData.weight}
-                      onChange={handleChange}
-                      placeholder="e.g. 58.5"
-                    />
-                  </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="systolic">Systolic BP</Label>
 
                     <Input
                       id="systolic"
                       name="systolic"
-                      type="Number"
+                      type="number"
                       min="0"
                       value={formData.systolic}
                       onChange={handleChange}
@@ -404,7 +350,7 @@ const ASHAPatientANC = () => {
                     <Input
                       id="diastolic"
                       name="diastolic"
-                      type="Number"
+                      type="number"
                       min="0"
                       value={formData.diastolic}
                       onChange={handleChange}
@@ -419,7 +365,7 @@ const ASHAPatientANC = () => {
                     <Input
                       id="hemoglobin"
                       name="hemoglobin"
-                      type="Number"
+                      type="number"
                       min="0"
                       value={formData.hemoglobin}
                       onChange={handleChange}
@@ -439,7 +385,7 @@ const ASHAPatientANC = () => {
                   <Input
                     id="fetalHeartRate"
                     name="fetalHeartRate"
-                    type="Number"
+                    type="number"
                     min="0"
                     value={formData.fetalHeartRate}
                     onChange={handleChange}
@@ -562,9 +508,13 @@ const ASHAPatientANC = () => {
                       <p className="text-sm text-muted-foreground">Trimester</p>
 
                       <p className="mt-1 font-medium">
-                        {record.trimester
-                          ? `Trimester ${record.trimester}`
-                          : "-"}
+                        {record.gestationalWeek == null
+                          ? "-"
+                          : record.gestationalWeek <= 12
+                            ? "First trimester"
+                            : record.gestationalWeek <= 27
+                              ? "Second trimester"
+                              : "Third trimester"}
                       </p>
                     </div>
 

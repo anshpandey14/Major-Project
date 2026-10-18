@@ -31,8 +31,8 @@ const PHCPatientDetails = () => {
       setError("");
 
       const [patientResponse, timelineResponse] = await Promise.all([
-        api.get(`/patients/${patientId}`),
-        api.get(`/patients/${patientId}/timeline`),
+        api.get(`/patient/${patientId}`),
+        api.get(`/patient/${patientId}/timeline`),
       ]);
 
       const patientData = patientResponse?.data?.data || patientResponse?.data;
@@ -118,7 +118,7 @@ const PHCPatientDetails = () => {
     try {
       setLoading(true);
 
-      await api.delete(`/patients/${patientId}`);
+      await api.delete(`/patient/${patientId}`);
 
       navigate("/phc/patients");
     } catch (err) {

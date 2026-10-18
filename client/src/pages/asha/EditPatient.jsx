@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
-import api from "@/api/axios";
+import { getPatient, updatePatient } from "@/services/patient.repository";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,9 +48,8 @@ const EditPatient = () => {
         setIsLoading(true);
         setError("");
 
-        const response = await api.get(`/patients/${patientId}`);
-
-        const patient = response?.data?.data || response?.data?.patient;
+        const result = await getPatient(patientId);
+        const patient = result.patient;
 
         if (!patient) {
           throw new Error("Patient data not found");
@@ -118,7 +117,7 @@ const EditPatient = () => {
         payload.lmpDate = formData.lmpDate;
       }
 
-      await api.patch(`/patients/${patientId}`, payload);
+      await updatePatient(patientId, payload);
       navigate(`/asha/patients/${patientId}`);
     } catch (err) {
       setError(

@@ -1,12 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  Baby,
-  ClipboardList,
   HeartPulse,
   LayoutDashboard,
-  Settings,
-  ShieldCheck,
-  Syringe,
   Users,
   UserPlus,
 } from "lucide-react";
@@ -14,7 +9,6 @@ import { useAuth } from "@/context/AuthContext";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -52,11 +46,8 @@ const AppSidebar = () => {
   ];
 
   const phcItems = [
-    {
-      title: "Patients",
-      url: "/phc/patients",
-      icon: Users,
-    },
+    { title: "Patients", url: "/phc/patients", icon: Users },
+    { title: "Register ASHA", url: "/phc/register-asha", icon: UserPlus },
   ];
 
   const adminItems = [
@@ -138,80 +129,9 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {(role === "asha" || role === "phc") && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Healthcare</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Visits">
-                    <Link to={role === "asha" ? "/asha/visits" : "/phc/visits"}>
-                      <ClipboardList />
-                      <span>Visits</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Vaccinations">
-                    <Link
-                      to={
-                        role === "asha"
-                          ? "/asha/vaccinations"
-                          : "/phc/vaccinations"
-                      }
-                    >
-                      <Syringe />
-                      <span>Vaccinations</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="ANC">
-                    <Link to={role === "asha" ? "/asha/anc" : "/phc/anc"}>
-                      <Baby />
-                      <span>ANC</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {role === "it_admin" && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Administration</SidebarGroupLabel>
-
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="System Management">
-                    <Link to="/admin/system">
-                      <ShieldCheck />
-                      <span>System Management</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
 
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Settings">
-              <Link to="/settings">
-                <Settings />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+
     </Sidebar>
   );
 };

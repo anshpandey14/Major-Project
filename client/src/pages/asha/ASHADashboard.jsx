@@ -28,8 +28,8 @@ const ASHADashboard = () => {
 
       const [pateintResponse, vaccinationResponse, ancResponse] =
         await Promise.all([
-          api.get("/patients/stats"),
-          api.get("/vaccinations/stats"),
+          api.get("/patient/stats"),
+          api.get("/vaccination/stats"),
           api.get("/anc/stats"),
         ]);
 

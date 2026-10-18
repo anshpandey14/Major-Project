@@ -12,7 +12,7 @@ import {
 
 // CREATE VISIT
 export const syncCreateVisit = async (operation, user, idMap) => {
-  const { id, payload } = operation;
+  const { id, payload, timestamp } = operation;
 
   const data = replaceTempIds(payload, idMap);
 
@@ -47,10 +47,12 @@ export const syncCreateVisit = async (operation, user, idMap) => {
   }
 
   const localId = data.localId;
+  const operationDate = new Date(timestamp);
   const visit = await Visit.create({
     ...safeVisitData,
     patient: patientId,
     conductedBy: user._id,
+    ...(Number.isNaN(operationDate.getTime()) ? {} : { createdAt: operationDate, updatedAt: operationDate }),
   });
 
   saveIdMapping(localId, visit._id, idMap);

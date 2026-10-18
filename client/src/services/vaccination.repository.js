@@ -25,22 +25,37 @@ export const getVaccinations = async (patientId, params = {}) => {
     };
   }
 
-  const resposne = await api.get(`/vaccinations/${patientId}`, { params });
+  const response = await api.get(`/vaccination/${patientId}`, { params });
 
-  const data = resposne.data?.data || resposne.data;
+  const data = response.data?.data || response.data;
   const vaccinations = data?.vaccinations || [];
 
   for (const vaccination of vaccinations) {
-    await saveVaccinationLocally({
-      ...vaccination,
-      isSynced: true,
-    });
+    const patientIdValue = typeof vaccination.patient === "object" ? vaccination.patient?._id : vaccination.patient;
+    await saveVaccinationLocally({ ...vaccination, patientId: vaccination.patientId ?? patientIdValue, isSynced: true });
   }
 
   return {
     ...data,
     offline: false,
   };
+};
+
+
+export const getVaccination = async (patientId, vaccinationId) => {
+  if (!navigator.onLine) {
+    const vaccination = await getVaccinationLocally(vaccinationId);
+    if (!vaccination || String(vaccination.patientId) !== String(patientId)) throw new Error("Vaccination not found locally");
+    return { vaccination, offline: true };
+  }
+  const response = await api.get(`/vaccination/${patientId}/${vaccinationId}`);
+  const data = response.data?.data ?? response.data;
+  const vaccination = data.vaccination ?? data;
+  if (vaccination?._id) {
+    const patientRef = typeof vaccination.patient === "object" ? vaccination.patient?._id : vaccination.patient;
+    await saveVaccinationLocally({ ...vaccination, patientId: vaccination.patientId ?? patientRef ?? patientId, isSynced: true });
+  }
+  return { vaccination, offline: false };
 };
 
 export const createVaccination = async (patientId, vaccinationData) => {
@@ -80,22 +95,18 @@ export const createVaccination = async (patientId, vaccinationData) => {
   }
 
   const response = await api.post(
-    `/vaccinations/${patientId}`,
+    `/vaccination/${patientId}`,
     vaccinationData,
   );
 
   const data = response.data?.data || response.data;
-  if (data?.vaccination) {
-    await saveVaccinationLocally({
-      ...data.vaccination,
-      isSynced: true,
-    });
+  const vaccination = data.vaccination ?? data;
+  if (vaccination?._id) {
+    const patientRef = typeof vaccination.patient === "object" ? vaccination.patient?._id : vaccination.patient;
+    await saveVaccinationLocally({ ...vaccination, patientId: vaccination.patientId ?? patientRef ?? patientId, isSynced: true });
   }
 
-  return {
-    ...data,
-    offline: false,
-  };
+  return { vaccination, offline: false };
 };
 
 export const updateVaccination = async (patientId, vaccinationId, updates) => {
@@ -118,17 +129,16 @@ export const updateVaccination = async (patientId, vaccinationId, updates) => {
     return { vaccination, offline: true };
   }
   const response = await api.put(
-    `/vaccinations/${patientId}/${vaccinationId}`,
+    `/vaccination/${patientId}/${vaccinationId}`,
     updates,
   );
 
   const data = response.data?.data || response.data;
-  if (data?.vaccination) {
-    await saveVaccinationLocally({
-      ...data.vaccination,
-      isSynced: true,
-    });
+  const vaccination = data.vaccination ?? data;
+  if (vaccination?._id) {
+    const patientRef = typeof vaccination.patient === "object" ? vaccination.patient?._id : vaccination.patient;
+    await saveVaccinationLocally({ ...vaccination, patientId: vaccination.patientId ?? patientRef ?? patientId, isSynced: true });
   }
 
-  return { ...data, offline: false };
+  return { vaccination, offline: false };
 };

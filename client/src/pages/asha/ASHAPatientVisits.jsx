@@ -7,7 +7,8 @@ import {
   Loader2,
   Plus,
 } from "lucide-react";
-import api from "@/api/axios";
+import { getPatient } from "@/services/patient.repository";
+import { getVisits, createVisit } from "@/services/visit.repository";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,7 @@ const symptomOptions = [
   "chest pain",
   "abdominal pain",
   "swelling",
-  "breathlessnes",
+  "breathlessness",
   "bleeding",
 ];
 
@@ -56,27 +57,16 @@ const ASHAPatientVisits = () => {
       setLoading(true);
       setError("");
 
-      const [patientResponse, visitsResponse] = await Promise.all([
-        api.get(`/patients/${patientId}`),
-        api.get(`/visits/${patientId}`),
+      const [patientResult, visitsResult] = await Promise.all([
+        getPatient(patientId),
+        getVisits(patientId),
       ]);
 
-      const patientData =
-        patientResponse?.data?.data?.patient ||
-        patientResponse?.data?.patient ||
-        patientResponse?.data?.data;
-
-      const visitsData =
-        visitsResponse?.data?.data?.visits ||
-        visitsResponse?.data?.visits ||
-        visitsResponse?.data?.data ||
-        [];
-
-      setPatient(patientData);
-      setVisits(Array.isArray(visitsData) ? visitsData : []);
+      setPatient(patientResult.patient);
+      setVisits(Array.isArray(visitsResult.visits) ? visitsResult.visits : []);
     } catch (err) {
       setError(
-        err?.reposnse?.data?.message || "Failed to load patient visits.",
+        err?.response?.data?.message || "Failed to load patient visits.",
       );
     } finally {
       setLoading(false);
@@ -108,7 +98,7 @@ const ASHAPatientVisits = () => {
     setFormData({
       visitDate: "",
       weight: "",
-      symptom: [],
+      symptoms: [],
       additionalSymptoms: "",
       notes: "",
       followUpDate: "",
@@ -137,7 +127,7 @@ const ASHAPatientVisits = () => {
         payload.followUpDate = formData.followUpDate;
       }
 
-      await api.post(`/visits/${patientId}`, payload);
+      await createVisit(patientId, payload);
 
       resetForm();
       setShowForm(false);

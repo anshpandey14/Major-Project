@@ -29,8 +29,8 @@ const PHCPatientVisits = () => {
       setError("");
 
       const [patientResponse, visitsResponse] = await Promise.all([
-        api.get(`/patients/${patientId}`),
-        api.get(`/visits/${patientId}`),
+        api.get(`/patient/${patientId}`),
+        api.get(`/visit/${patientId}`),
       ]);
 
       const patientData = patientResponse?.data?.data || patientResponse?.data;
@@ -94,7 +94,7 @@ const PHCPatientVisits = () => {
     try {
       setIsDeleting(true);
 
-      await api.delete(`/visits/${patientId}/${visitId}`);
+      await api.delete(`/visit/${patientId}/${visitId}`);
 
       setVisits((prev) => prev.filter((visit) => visit._id !== visitId));
     } catch (err) {
@@ -189,11 +189,17 @@ const PHCPatientVisits = () => {
                         </p>
                       )}
                     </div>
-                    {visit.weight != null && (
-                      <p className="text-sm font-medium">
-                        Weight: {visit.weight} kg
-                      </p>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {visit.weight != null && (
+                        <p className="text-sm font-medium">Weight: {visit.weight} kg</p>
+                      )}
+                      <Button variant="outline" size="icon" aria-label="Edit visit" onClick={() => navigate(`/phc/patients/${patientId}/visits/${visit._id}/edit`)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="icon" aria-label="Delete visit" disabled={isDeleting} onClick={() => handleDeleteVisit(visit._id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   {visit.symptoms?.length > 0 && (

@@ -1,6 +1,7 @@
 import api from "@/api/axios";
 import {
   getVisitsLocally,
+  getVisitLocally,
   saveVisitLocally,
   updateVisitLocally,
 } from "./local/visit.local";
@@ -24,7 +25,7 @@ export const getVisits = async (patientId, params = {}) => {
     };
   }
 
-  const response = await api.get(`/visits/${patientId}`, {
+  const response = await api.get(`/visit/${patientId}`, {
     params,
   });
 
@@ -32,13 +33,28 @@ export const getVisits = async (patientId, params = {}) => {
   const visits = data?.visits || [];
 
   for (const visit of visits) {
-    await saveVisitLocally({
-      ...visit,
-      isSynced: true,
-    });
+    const patientIdValue = typeof visit.patient === "object" ? visit.patient?._id : visit.patient;
+    await saveVisitLocally({ ...visit, patientId: visit.patientId ?? patientIdValue, isSynced: true });
   }
 
   return { ...data, offline: false };
+};
+
+
+export const getVisit = async (patientId, visitId) => {
+  if (!navigator.onLine) {
+    const visit = await getVisitLocally(visitId);
+    if (!visit || String(visit.patientId) !== String(patientId)) throw new Error("Visit not found locally");
+    return { visit, offline: true };
+  }
+  const response = await api.get(`/visit/${patientId}/${visitId}`);
+  const data = response.data?.data ?? response.data;
+  const visit = data.visit ?? data;
+  if (visit?._id) {
+    const patientRef = typeof visit.patient === "object" ? visit.patient?._id : visit.patient;
+    await saveVisitLocally({ ...visit, patientId: visit.patientId ?? patientRef ?? patientId, isSynced: true });
+  }
+  return { visit, offline: false };
 };
 
 export const updateVisit = async (patientId, visitId, updates) => {
@@ -46,7 +62,7 @@ export const updateVisit = async (patientId, visitId, updates) => {
     const visit = await updateVisitLocally(visitId, updates);
 
     if (!visit) {
-      throw new ErrorEvent("Visit not found locally");
+      throw new Error("Visit not found locally");
     }
 
     await addToSyncQueue({
@@ -64,18 +80,17 @@ export const updateVisit = async (patientId, visitId, updates) => {
     };
   }
 
-  const response = await api.put(`/visits/${patientId}/${visitId}`, updates);
+  const response = await api.put(`/visit/${patientId}/${visitId}`, updates);
 
   const data = response.data?.data || response.data;
 
-  if (data?.visit) {
-    await saveVisitLocally({
-      ...data.visit,
-      isSynced: true,
-    });
+  const visit = data.visit ?? data;
+  if (visit?._id) {
+    const patientRef = typeof visit.patient === "object" ? visit.patient?._id : visit.patient;
+    await saveVisitLocally({ ...visit, patientId: visit.patientId ?? patientRef ?? patientId, isSynced: true });
   }
 
-  return { ...data, offline: false };
+  return { visit, offline: false };
 };
 
 export const createVisit = async (patientId, visitData) => {
@@ -110,16 +125,15 @@ export const createVisit = async (patientId, visitData) => {
     };
   }
 
-  const response = await api.post(`/visits/${patientId}`, visitData);
+  const response = await api.post(`/visit/${patientId}`, visitData);
 
   const data = response.data?.data || response.data;
 
-  if (data?.visit) {
-    await saveVisitLocally({
-      ...data.visit,
-      isSynced: true,
-    });
+  const visit = data.visit ?? data;
+  if (visit?._id) {
+    const patientRef = typeof visit.patient === "object" ? visit.patient?._id : visit.patient;
+    await saveVisitLocally({ ...visit, patientId: visit.patientId ?? patientRef ?? patientId, isSynced: true });
   }
 
-  return { ...data, offline: false };
+  return { visit, offline: false };
 };

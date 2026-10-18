@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
-import api from "@/api/axios";
+import { getPatient } from "@/services/patient.repository";
+import { getANC, updateANC } from "@/services/anc.repository";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +15,6 @@ const EditANC = () => {
   const [formData, setFormData] = useState({
     visitDate: "",
     gestationalWeek: "",
-    trimester: "",
     weight: "",
     systolic: "",
     diastolic: "",
@@ -34,17 +34,15 @@ const EditANC = () => {
         setIsLoading(true);
         setError("");
 
-        const [patientResponse, ancResponse] = await Promise.all([
-          api.get(`/patients/${patientId}`),
-          api.get(`/anc/${patientId}/${ancId}`),
+        const [patientResult, ancResult] = await Promise.all([
+          getPatient(patientId),
+          getANC(patientId, ancId),
         ]);
 
-        const patientData =
-          patientResponse?.data?.data || patientResponse?.data?.patient;
+        const patientData = patientResult.patient;
+        const anc = ancResult.anc;
 
-        const anc = ancResponse?.data.data || ancResponse?.data?.anc;
-
-        if (!patientResponse) {
+        if (!patientData) {
           throw new Error("Patient data not found");
         }
 
@@ -57,7 +55,6 @@ const EditANC = () => {
         setFormData({
           visitDate: anc.visitDate ? anc.visitDate.split("T")[0] : "",
           gestationalWeek: anc.gestationalWeek ?? "",
-          trimester: anc.trimester ?? "",
           weight: anc.weight ?? "",
           systolic: anc?.bloodPressure?.systolic ?? "",
           diastolic: anc?.bloodPressure?.diastolic ?? "",
@@ -103,7 +100,6 @@ const EditANC = () => {
       const payload = {
         visitDate: formData.visitDate,
         gestationalWeek: Number(formData.gestationalWeek),
-        trimester: Number(formData.trimester),
         bloodPressure: {
           systolic: Number(formData.systolic),
           diastolic: Number(formData.diastolic),
@@ -126,11 +122,11 @@ const EditANC = () => {
         payload.nextVisitDate = formData.nextVisitDate;
       }
 
-      await api.put(`/anc/${patientId}/${ancId}`, payload);
+      await updateANC(patientId, ancId, payload);
       navigate(`/asha/patients/${patientId}/anc`);
     } catch (err) {
       setError(
-        err?.reponse?.data?.message ||
+        err?.response?.data?.message ||
           err?.message ||
           "Failed to update ANC record",
       );
@@ -160,7 +156,7 @@ const EditANC = () => {
           </Button>
 
           <div>
-            <h1 className="" text-2xl font-bold tracking-tight>
+            <h1 className="text-2xl font-bold tracking-tight">
               Edit ANC
             </h1>
             <p className="text-muted-foreground">
@@ -233,25 +229,6 @@ const EditANC = () => {
                   required
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="trimester">Trimester</Label>
-
-                <select
-                  id="trimester"
-                  name="trimester"
-                  value={formData.trimester}
-                  onChange={handleChange}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none"
-                  required
-                >
-                  <option value="">Select trimester</option>
-                  <option value="1">1st trimester</option>
-                  <option value="2">2nd trimester</option>
-                  <option value="3">3rd trimester</option>
-                </select>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="weight">Weight (kg)</Label>
 

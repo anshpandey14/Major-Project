@@ -12,7 +12,7 @@ import {
 
 // CREATE ANC
 export const syncCreateANC = async (operation, user, idMap) => {
-  const { id, payload } = operation;
+  const { id, payload, timestamp } = operation;
 
   const data = replaceTempIds(payload, idMap);
 
@@ -71,10 +71,12 @@ export const syncCreateANC = async (operation, user, idMap) => {
   safeANCData.isHighRisk = systolic > 140 || diastolic > 90 || hemoglobin < 8;
 
   const localId = data.localId;
+  const operationDate = new Date(timestamp);
   const anc = await ANC.create({
     ...safeANCData,
     patient: patientId,
     conductedBy: user._id,
+    ...(Number.isNaN(operationDate.getTime()) ? {} : { createdAt: operationDate, updatedAt: operationDate }),
   });
 
   saveIdMapping(localId, anc._id, idMap);

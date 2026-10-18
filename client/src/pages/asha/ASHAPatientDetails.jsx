@@ -11,7 +11,7 @@ import {
   Weight,
   Loader2,
 } from "lucide-react";
-import api from "@/api/axios";
+import { getPatient, getPatientTimeline } from "@/services/patient.repository";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -30,27 +30,16 @@ const ASHAPatientDetails = () => {
         setLoading(true);
         setError("");
 
-        const [patientResponse, timelineResponse] = await Promise.all([
-          api.get(`/patients/${patientId}`),
-          api.get(`/patients/${patientId}/timeline`),
+        const [patientResult, timelineResult] = await Promise.all([
+          getPatient(patientId),
+          getPatientTimeline(patientId),
         ]);
 
-        const patientData =
-          patientResponse?.data?.data?.patient ||
-          patientResponse?.data?.patient ||
-          patientResponse?.data?.data;
-
-        const timelineData =
-          timelineResponse?.data?.data?.timeline ||
-          timelineResponse?.data?.timeline ||
-          timelineResponse?.data?.data ||
-          [];
-
-        setPatient(patientData);
-        setTimeline(Array.isArray(timelineData) ? timelineData : []);
+        setPatient(patientResult.patient);
+        setTimeline(Array.isArray(timelineResult.timeline) ? timelineResult.timeline : []);
       } catch (err) {
         setError(
-          err?.reponse?.data?.message || "Failed to load patient information.",
+          err?.response?.data?.message || "Failed to load patient information.",
         );
       } finally {
         setLoading(false);

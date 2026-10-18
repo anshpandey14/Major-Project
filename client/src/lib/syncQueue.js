@@ -1,4 +1,17 @@
 import { dbPromise } from "./db";
+import { getAccessToken } from "@/api/axios";
+
+export const getCurrentTokenUserId = () => {
+  const token = getAccessToken();
+  if (!token) return null;
+  try {
+    const payload = token.split(".")[1];
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(normalized))._id ?? null;
+  } catch {
+    return null;
+  }
+};
 
 const generateId = () => {
   return `${Date.now()}-${crypto.randomUUID()}`;
@@ -7,8 +20,14 @@ const generateId = () => {
 export const addToSyncQueue = async ({ operation, payload }) => {
   const db = await dbPromise;
 
+  const ownerId = getCurrentTokenUserId();
+  if (!ownerId) {
+    throw new Error("Cannot queue an offline operation without an authenticated user session");
+  }
+
   const queueItem = {
     id: generateId(),
+    ownerId,
     operation,
     timestamp: new Date().toISOString(),
     payload,
@@ -20,12 +39,13 @@ export const addToSyncQueue = async ({ operation, payload }) => {
   return queueItem;
 };
 
-export const getPendingSyncItems = async () => {
+export const getPendingSyncItems = async (ownerId = getCurrentTokenUserId()) => {
+  if (!ownerId) return [];
   const db = await dbPromise;
   const items = await db.getAll("syncQueue");
 
   return items
-    .filter((item) => item.status === "pending")
+    .filter((item) => item.status === "pending" && item.ownerId === ownerId)
     .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 };
 

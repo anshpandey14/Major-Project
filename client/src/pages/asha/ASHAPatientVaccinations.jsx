@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CalendarDays, Loader2, Plus, Syringe } from "lucide-react";
-import api from "@/api/axios";
+import { getPatient } from "@/services/patient.repository";
+import {
+  getVaccinations,
+  createVaccination,
+} from "@/services/vaccination.repository";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,22 +13,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const vaccineOptions = [
   "BCG",
-  "OPV0",
-  "OPV1",
-  "OPV2",
-  "OPV3",
-  "HepB",
-  "DPT1",
-  "DPT2",
-  "DPT3",
+  "OPV",
+  "Hepatitis B",
+  "DPT",
   "Measles",
   "Vitamin A",
-  "TT1",
-  "TT2",
-  "Booster",
+  "TT",
 ];
-
-const statusOptions = ["pending", "completed", "overdue"];
 
 const ASHAPatientVaccinations = () => {
   const { patientId } = useParams();
@@ -42,7 +37,6 @@ const ASHAPatientVaccinations = () => {
     doseNumber: "",
     vaccinationDate: "",
     nextDueDate: "",
-    status: "",
     notes: "",
   });
 
@@ -55,24 +49,14 @@ const ASHAPatientVaccinations = () => {
       setLoading(true);
       setError("");
 
-      const [patientResponse, vaccinationResponse] = await Promise.all([
-        api.get(`/patients/${patientId}`),
-        api.get(`/vaccinations/${patientId}`),
+      const [patientResult, vaccinationResult] = await Promise.all([
+        getPatient(patientId),
+        getVaccinations(patientId),
       ]);
 
-      const patientData =
-        patientResponse?.data?.data?.patient ||
-        patientResponse?.data?.patient ||
-        patientResponse?.data?.data;
-
-      const vaccinationData =
-        vaccinationResponse?.data?.data?.vaccinations ||
-        vaccinationResponse?.data?.vaccinations ||
-        vaccinationResponse?.data?.data ||
-        [];
-
-      setPatient(patientData);
-      setVaccinations(Array.isArray(vaccinationData) ? vaccinationData : []);
+      setPatient(patientResult.patient);
+      const records = vaccinationResult.vaccinations ?? vaccinationResult;
+      setVaccinations(Array.isArray(records) ? records : []);
     } catch (err) {
       setError(
         err?.response?.data?.message || "Failed to load vaccination records.",
@@ -97,7 +81,6 @@ const ASHAPatientVaccinations = () => {
       doseNumber: "",
       vaccinationDate: "",
       nextDueDate: "",
-      status: "",
       notes: "",
     });
   };
@@ -112,15 +95,15 @@ const ASHAPatientVaccinations = () => {
       const payload = {
         doseNumber: Number(formData.doseNumber),
         vaccinationDate: formData.vaccinationDate,
-        status: formData.status,
         notes: formData.notes.trim(),
       };
 
-      if (formData.vaccine) {
+      if (formData.vaccine && formData.vaccine !== "custom") {
         payload.vaccine = formData.vaccine;
-      }
-
-      if (formData.customVaccine.trim()) {
+      } else if (
+        formData.vaccine === "custom" &&
+        formData.customVaccine.trim()
+      ) {
         payload.customVaccine = formData.customVaccine.trim();
       }
 
@@ -128,7 +111,7 @@ const ASHAPatientVaccinations = () => {
         payload.nextDueDate = formData.nextDueDate;
       }
 
-      await api.post(`/vaccinations/${patientId}`, payload);
+      await createVaccination(patientId, payload);
 
       resetForm();
       setShowForm(false);
@@ -236,20 +219,23 @@ const ASHAPatientVaccinations = () => {
                         {vaccine}
                       </option>
                     ))}
+                    <option value="custom">Custom Vaccine</option>
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="customVaccine">Custom Vaccine</Label>
-
-                  <Input
-                    id="customVaccine"
-                    name="customVaccine"
-                    value={formData.customVaccine}
-                    onChange={handleChange}
-                    placeholder="Enter custom vaccine"
-                  />
-                </div>
+                {formData.vaccine === "custom" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="customVaccine">Custom Vaccine</Label>
+                    <Input
+                      id="customVaccine"
+                      name="customVaccine"
+                      value={formData.customVaccine}
+                      onChange={handleChange}
+                      placeholder="Enter custom vaccine"
+                      required
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="doseNumber">Dose Number</Label>
@@ -291,26 +277,7 @@ const ASHAPatientVaccinations = () => {
                     onChange={handleChange}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-
-                  <select
-                    id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    {statusOptions.map((status) => (
-                      <option value={status} key={status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="notes">Notes</Label>
 

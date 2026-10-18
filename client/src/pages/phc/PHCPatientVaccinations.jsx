@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PHCPatientVaccinations = () => {
-  const { patientId, vaccinationId } = useParams();
+  const { patientId } = useParams();
   const navigate = useNavigate();
 
   const [patient, setPatient] = useState(null);
@@ -30,8 +30,8 @@ const PHCPatientVaccinations = () => {
       setError("");
 
       const [patientResponse, vaccinationResponse] = await Promise.all([
-        api.get(`/patients/${patientId}`),
-        api.get(`/vaccinations/${patientId}`),
+        api.get(`/patient/${patientId}`),
+        api.get(`/vaccination/${patientId}`),
       ]);
 
       const patientData = patientResponse?.data?.data || patientResponse?.data;
@@ -106,7 +106,7 @@ const PHCPatientVaccinations = () => {
 
   if (error) {
     return (
-      <div className="flex min-0h-[60vh] flex-col items-center justify-center gap-4">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <p className="text-destructive">{error}</p>
 
         <Button
@@ -132,7 +132,7 @@ const PHCPatientVaccinations = () => {
     (item) => item.status === "overdue",
   ).length;
 
-  const handleDeleteVaccination = async (visitId) => {
+  const handleDeleteVaccination = async (vaccinationId) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this vaccination.",
     );
@@ -141,7 +141,7 @@ const PHCPatientVaccinations = () => {
     try {
       setIsDeleting(true);
 
-      await api.delete(`/vaccinations/${patientId}/${vaccinationId}`);
+      await api.delete(`/vaccination/${patientId}/${vaccinationId}`);
 
       setVaccinations((prev) =>
         prev.filter((vaccination) => vaccination._id !== vaccinationId),
@@ -235,7 +235,15 @@ const PHCPatientVaccinations = () => {
                         </p>
                       )}
                     </div>
-                    {getStatus(vaccination)}
+                    <div className="flex items-center gap-2">
+                      {getStatus(vaccination)}
+                      <Button variant="outline" size="icon" aria-label="Edit vaccination" onClick={() => navigate(`/phc/patients/${patientId}/vaccinations/${vaccination._id}/edit`)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="icon" aria-label="Delete vaccination" disabled={isDeleting} onClick={() => handleDeleteVaccination(vaccination._id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <InfoItem

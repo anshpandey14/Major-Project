@@ -32,8 +32,8 @@ const EditVaccinationPHC = () => {
         setIsLoading(true);
         setError("");
         const [patientResponse, vaccinationResponse] = await Promise.all([
-          api.get(`/patients/${patientId}`),
-          api.get(`/vaccinations/${patientId}/${vaccinationId}`),
+          api.get(`/patient/${patientId}`),
+          api.get(`/vaccination/${patientId}/${vaccinationId}`),
         ]);
 
         const patientData =
@@ -83,7 +83,7 @@ const EditVaccinationPHC = () => {
       setIsSaving(true);
       setError("");
 
-      await api.put(`/vaccinations/${patientId}/${vaccinationId}`, {
+      await api.put(`/vaccination/${patientId}/${vaccinationId}`, {
         vaccine: formData.vaccine || undefined,
         customVaccine: formData.customVaccine || undefined,
         doseNumber: formData.doseNumber

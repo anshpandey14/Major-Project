@@ -35,7 +35,7 @@ const EditANCPHC = () => {
         setIsLoading(true);
         setError("");
         const [patientResponse, ancResponse] = await Promise.all([
-          api.get(`/patients/${patientId}`),
+          api.get(`/patient/${patientId}`),
           api.get(`/anc/${patientId}/${ancId}`),
         ]);
 

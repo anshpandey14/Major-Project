@@ -31,7 +31,7 @@ const PHCPatientANC = () => {
       setError("");
 
       const [patientResponse, ancResponse] = await Promise.all([
-        api.get(`/patients/${patientId}`),
+        api.get(`/patient/${patientId}`),
         api.get(`/anc/${patientId}`),
       ]);
 
@@ -46,7 +46,7 @@ const PHCPatientANC = () => {
           (Array.isArray(ancData) ? ancData : []),
       );
     } catch (err) {
-      console.error("Failed to fetch ANC records:".err);
+      console.error("Failed to fetch ANC records:", err);
       setError(err?.response?.data?.message || "Failed to load ANC records.");
     } finally {
       setLoading(false);
@@ -121,7 +121,7 @@ const PHCPatientANC = () => {
 
   const latestANC = ancRecords[0];
 
-  const handleDeleteANC = async (visitId) => {
+  const handleDeleteANC = async (ancIdToDelete) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this ANC record.",
     );
@@ -130,9 +130,9 @@ const PHCPatientANC = () => {
     try {
       setIsDeleting(true);
 
-      await api.delete(`/anc/${patientId}/${ancId}`);
+      await api.delete(`/anc/${patientId}/${ancIdToDelete}`);
 
-      setAncRecords((prev) => prev.filter((record) => record._id !== ancId));
+      setAncRecords((prev) => prev.filter((record) => record._id !== ancIdToDelete));
     } catch (err) {
       console.error(err);
 
@@ -171,7 +171,7 @@ const PHCPatientANC = () => {
                 Patient is not currently marked as pregnant
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                ANC Records are intented for pregnant patients.
+                ANC Records are intended for pregnant patients.
               </p>
             </div>
           </CardContent>
@@ -247,7 +247,15 @@ const PHCPatientANC = () => {
                         </p>
                       )}
                     </div>
-                    {getRiskStatus(record)}
+                    <div className="flex items-center gap-2">
+                      {getRiskStatus(record)}
+                      <Button variant="outline" size="icon" aria-label="Edit ANC record" onClick={() => navigate(`/phc/patients/${patientId}/anc/${record._id}/edit`)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="icon" aria-label="Delete ANC record" disabled={isDeleting} onClick={() => handleDeleteANC(record._id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

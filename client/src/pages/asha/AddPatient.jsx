@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus, Loader2 } from "lucide-react";
-import api from "@/api/axios";
+import { createPatient } from "@/services/patient.repository";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -69,12 +69,8 @@ const AddPatient = () => {
         payload.lmpDate = formData.lmpDate;
       }
 
-      const response = await api.post("/patients", payload);
-
-      const createdPatient =
-        response?.data?.data?.patient ||
-        response?.data?.patient ||
-        response?.data?.data;
+      const result = await createPatient(payload);
+      const createdPatient = result?.patient;
 
       if (createdPatient?._id) {
         navigate(`/asha/patients/${createdPatient._id}`);
@@ -83,7 +79,7 @@ const AddPatient = () => {
       }
     } catch (err) {
       const message =
-        err?.response?.message ||
+        err?.response?.data?.message ||
         err?.response?.data?.errors?.[0].msg ||
         "Failed to add patient. Please try again.";
 
@@ -244,7 +240,7 @@ const AddPatient = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bloodGroup">Blood Group (cm)</Label>
+                  <Label htmlFor="bloodGroup">Blood Group</Label>
 
                   <select
                     id="bloodGroup"
@@ -284,7 +280,7 @@ const AddPatient = () => {
                   checked={formData.isPregnant}
                 />
                 <div>
-                  <p className="font-medium">Pateint is pregnant</p>
+                  <p className="font-medium">Patient is pregnant</p>
                   <p className="text-sm text-muted-foreground">
                     Enable this if the patient is currently pregnant.
                   </p>
@@ -298,7 +294,7 @@ const AddPatient = () => {
                   <Input
                     id="lmpDate"
                     name="lmpDate"
-                    type="Date"
+                    type="date"
                     value={formData.lmpDate}
                     onChange={handleChange}
                   />

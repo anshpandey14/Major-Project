@@ -3,11 +3,14 @@ import {
   getPendingSyncItems,
   removeSyncItem,
   updateSyncItem,
+  getCurrentTokenUserId,
 } from "@/lib/syncQueue";
 import { replaceLocalIdReferences } from "@/lib/idMapping";
 
 export const syncPendingOperations = async () => {
-  const operations = await getPendingSyncItems();
+  const ownerId = getCurrentTokenUserId();
+  if (!ownerId) return { synced: 0, failed: 0, success: [], failedOperations: [] };
+  const operations = await getPendingSyncItems(ownerId);
 
   if (operations.length === 0) {
     return {
@@ -38,7 +41,7 @@ export const syncPendingOperations = async () => {
       const mongoId = successful.mongoId;
 
       if (localId && mongoId) {
-        await replaceLocalIdReferences(localId, mongoId);
+        await replaceLocalIdReferences(localId, mongoId, queuedOperation.operation);
       }
 
       await removeSyncItem(successful.id);
@@ -66,7 +69,7 @@ export const syncPendingOperations = async () => {
       success: [],
       failedOperations: operations.map((operation) => ({
         id: operation.id,
-        operation: operation,
+        operation: operation.operation,
         message:
           err?.response?.data?.message || err?.message || "Network error",
       })),

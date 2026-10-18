@@ -48,7 +48,7 @@ const EditPatientPHC = () => {
         setIsLoading(true);
         setError("");
 
-        const response = await api.get(`/patients/${patientId}`);
+        const response = await api.get(`/patient/${patientId}`);
 
         const patient = response?.data?.data || response?.data?.patient;
 
@@ -119,7 +119,7 @@ const EditPatientPHC = () => {
         payload.lmpDate = formData.lmpDate;
       }
 
-      await api.patch(`/patients/${patientId}`, payload);
+      await api.patch(`/patient/${patientId}`, payload);
 
       navigate(`/phc/patients/${patientId}`);
     } catch (err) {

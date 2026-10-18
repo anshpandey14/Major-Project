@@ -8,6 +8,11 @@ export const saveVisitLocally = async (visit) => {
   return visit;
 };
 
+export const getVisitLocally = async (visitId) => {
+  const db = await dbPromise;
+  return db.get(STORE_NAME, visitId);
+};
+
 export const getVisitsLocally = async (patientId) => {
   const db = await dbPromise;
 

@@ -188,7 +188,7 @@ const RegisterPHC = () => {
               </p>
             </div>
 
-            <div className="sapce-y-2">
+            <div className="space-y-2">
               <Label htmlFor="village">Village</Label>
               <Input
                 id="village"
