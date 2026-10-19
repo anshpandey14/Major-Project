@@ -88,15 +88,15 @@ const AppSidebar = () => {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex h-12 items-center gap-2 px-2">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="ehr-brand-mark flex size-10 shrink-0 items-center justify-center rounded-xl">
             <HeartPulse className="size-5" />
           </div>
           <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
             <span className="truncate  text-sm font-semibold">
-              Rural Health
+              EHR Companion
             </span>
             <span className="truncate text-xs text-muted-foreground">
-              Management System
+              Community care platform
             </span>
           </div>
         </div>
