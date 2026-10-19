@@ -67,19 +67,18 @@ const vaccinationSchema = new Schema(
 );
 
 // Either predefined vaccine or custom vaccine
-vaccinationSchema.pre("validate", function (next) {
+// Either predefined vaccine or custom vaccine
+vaccinationSchema.pre("validate", function () {
   const hasVaccine = Boolean(this.vaccine);
   const hasCustomVaccine = Boolean(this.customVaccine?.trim());
 
   if (!hasVaccine && !hasCustomVaccine) {
-    return next(new Error("Either vaccine or customVaccine is required"));
+    throw new Error("Either vaccine or customVaccine is required");
   }
 
   if (hasVaccine && hasCustomVaccine) {
-    return next(new Error("Provide either vaccine or customVaccine, not both"));
+    throw new Error("Provide either vaccine or customVaccine, not both");
   }
-
-  next();
 });
 
 // Indexes

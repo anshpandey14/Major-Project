@@ -90,12 +90,11 @@ const patientSchema = new Schema(
 );
 
 // Prevent LMP date for non-pregnant patients
-patientSchema.pre("save", function (next) {
+// Prevent LMP date for non-pregnant patients
+patientSchema.pre("save", function () {
   if (!this.isPregnant) {
     this.lmpDate = null;
   }
-
-  next();
 });
 
 patientSchema.index({ fullName: 1, village: 1 });

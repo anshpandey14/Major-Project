@@ -36,7 +36,9 @@ const ASHAPatientDetails = () => {
         ]);
 
         setPatient(patientResult.patient);
-        setTimeline(Array.isArray(timelineResult.timeline) ? timelineResult.timeline : []);
+        setTimeline(
+          Array.isArray(timelineResult.timeline) ? timelineResult.timeline : [],
+        );
       } catch (err) {
         setError(
           err?.response?.data?.message || "Failed to load patient information.",
@@ -76,7 +78,7 @@ const ASHAPatientDetails = () => {
     ) {
       age--;
     }
-    return`${age} years`;
+    return `${age} years`;
   };
 
   const getTimelineIcon = (type) => {
@@ -364,7 +366,7 @@ const ASHAPatientDetails = () => {
                 >
                   <div className="flex flex-col item-center">
                     <div className="rounded-full border bg-muted p-2">
-                      {gettimelineIcon(item.type)}
+                      {getTimelineIcon(item.type)}
                     </div>
                     {index !== timeline.length - 1 && (
                       <div className="mt-2 h-full w-px bg-border" />

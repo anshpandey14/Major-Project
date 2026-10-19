@@ -69,14 +69,12 @@ const ancSchema = new Schema(
   { timestamps: true },
 );
 
-ancSchema.pre("save", function (next) {
+ancSchema.pre("save", function () {
   const systolic = this.bloodPressure?.systolic ?? 0;
   const diastolic = this.bloodPressure?.diastolic ?? 0;
   const hb = this.hemoglobin ?? Infinity;
 
   this.isHighRisk = systolic > 140 || diastolic > 90 || hb < 8;
-
-  next();
 });
 
 export const ANC = mongoose.model("ANC", ancSchema);
