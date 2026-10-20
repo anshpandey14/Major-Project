@@ -40,6 +40,13 @@ const ProtectedRoute = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
+  // Redirect to correct dashboard if user lands on a generic protected route
+  if (allowedRoles.length === 0 && location.pathname === "/") {
+    if (user.role === "asha") return <Navigate to="/asha/dashboard" replace />;
+    if (user.role === "phc") return <Navigate to="/phc/dashboard" replace />;
+    if (user.role === "it_admin") return <Navigate to="/admin/dashboard" replace />;
+  }
+
   return <Outlet />;
 };
 

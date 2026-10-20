@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Users,
   UserPlus,
+  RefreshCw,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -38,11 +39,8 @@ const AppSidebar = () => {
   ];
 
   const ashaItems = [
-    {
-      title: "Patients",
-      url: "/asha/patients",
-      icon: Users,
-    },
+    { title: "Patients", url: "/asha/patients", icon: Users },
+    { title: "Sync", url: "/sync", icon: RefreshCw },
   ];
 
   const phcItems = [

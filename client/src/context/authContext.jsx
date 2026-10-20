@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const refreshSession = async () => {
     try {
       const response = await authService.refreshToken();
-      const newAccessToken = response?.data?.accessToken;
+      const newAccessToken = response?.data?.data?.accessToken;
       if (!newAccessToken) {
         throw new Error("No access token received");
       }
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
       const userResponse = await authService.getCurrentUser();
 
-      setUser(userResponse?.data?.user || userResponse?.data);
+      setUser(userResponse?.data?.data?.user || userResponse?.data?.user);
 
       return true;
     } catch (error) {
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
         // Restore access token using the httpOnly refresh-token cookie
         const response = await authService.refreshToken();
 
-        const newAccessToken = response?.data?.accessToken;
+        const newAccessToken = response?.data?.data?.accessToken;
 
         if (!newAccessToken) {
           throw new Error("No access token received");
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
         // Now current-user has a valid Authorization header
         const userResponse = await authService.getCurrentUser();
 
-        setUser(userResponse?.data?.user || userResponse?.data);
+        setUser(userResponse?.data?.data?.user || userResponse?.data?.user);
       } catch (error) {
         clearAccessToken();
         setUser(null);
