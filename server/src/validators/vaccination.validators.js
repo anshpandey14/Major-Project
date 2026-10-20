@@ -29,7 +29,7 @@ export const createVaccinationValidator = () => [
     .optional()
     .trim()
     .isLength({ max: 100 })
-    .withMessage("Custom vaccine name cannot excedd 100 characters"),
+    .withMessage("Custom vaccine name cannot exceed 100 characters"),
 
   numberValidator("doseNumber", 1, 10, ""),
   dateValidator("vaccinationDate", true),
@@ -38,7 +38,7 @@ export const createVaccinationValidator = () => [
     .optional()
     .trim()
     .isLength({ max: 1000 })
-    .withMessage("Notes cannot excedd 1000 characters"),
+    .withMessage("Notes cannot exceed 1000 characters"),
 ];
 
 export const getAllVaccinationsValidator = () => [
@@ -81,7 +81,7 @@ export const updateVaccinationValidator = () => [
     .optional()
     .trim()
     .isLength({ max: 1000 })
-    .withMessage("Notes cannot excedd 1000 characters"),
+    .withMessage("Notes cannot exceed 1000 characters"),
 
   body().custom((value) => {
     const hasVaccine = !!value.vaccine;

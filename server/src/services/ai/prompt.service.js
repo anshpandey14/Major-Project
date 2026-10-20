@@ -31,7 +31,7 @@ export const buildSummaryPrompt = (
 export const buildRiskPrompt = (patient, ancRecords) => {
   return `You are an experienced obstetric healthcare assistant.
   
-  Assess pregnancy risk using the ANC recors below.
+  Assess pregnancy risk using the ANC records below.
 
   Clinical Guidelines:
 

@@ -31,9 +31,9 @@ const syncOperationsSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+syncOperationsSchema.index({ operationId: 1, user: 1 }, { unique: true });
+
 export const SyncOperation = mongoose.model(
   "SyncOperation",
   syncOperationsSchema,
 );
-
-syncOperationsSchema.index({ operationId: 1, user: 1 }, { unique: true });

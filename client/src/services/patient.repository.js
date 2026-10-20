@@ -77,7 +77,7 @@ export const updatePatient = async (patientId, updates) => {
     await addToSyncQueue({ operation: SyncOperationEnum.UPDATE_PATIENT, payload: { patientId, ...updates } });
     return { patient, offline: true };
   }
-  const data = unwrap(await api.patch(`/patient/${patientId}`, updates));
+  const data = unwrap(await api.put(`/patient/${patientId}`, updates));
   const patient = data.patient ?? data;
   if (patient?._id) await savePatientLocally({ ...patient, isSynced: true });
   return { patient, offline: false };

@@ -17,7 +17,7 @@ export const generateAIResponse = async (prompt) => {
       },
     });
 
-    const text = response.text?.trim();
+    const text = response.text().trim();
 
     if (!text) {
       throw new ApiError(500, "Invalid response from Gemini");

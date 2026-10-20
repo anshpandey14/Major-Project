@@ -1,8 +1,8 @@
 import api from "../api/axios";
 
 const authService = {
-  login: async (Credentials) => {
-    const response = await api.post("/auth/login", Credentials);
+  login: async (credentials) => {
+    const response = await api.post("/auth/login", credentials);
     return response.data;
   },
 

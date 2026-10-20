@@ -7,6 +7,10 @@ import { saveIdMapping } from "../utils/sync.helpers.js";
 export const syncOperations = asyncHandler(async (req, res) => {
   const { operations } = req.body;
 
+  if (!operations || !Array.isArray(operations) || operations.length === 0) {
+    throw new ApiError(400, "No operations to sync");
+  }
+
   const sortedOperations = [...operations].sort(
     (a, b) => new Date(a.timestamp) - new Date(b.timestamp),
   );
