@@ -3,11 +3,24 @@ import { getAccessToken } from "@/api/axios";
 
 export const getCurrentTokenUserId = () => {
   const token = getAccessToken();
+
   if (!token) return null;
+
   try {
     const payload = token.split(".")[1];
+
+    if (!payload) return null;
+
     const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(normalized))._id ?? null;
+
+    const padded = normalized.padEnd(
+      normalized.length + ((4 - (normalized.length % 4)) % 4),
+      "=",
+    );
+
+    const decoded = JSON.parse(atob(padded));
+
+    return decoded._id ?? decoded.userId ?? decoded.id ?? decoded.sub ?? null;
   } catch {
     return null;
   }
@@ -19,10 +32,12 @@ const generateId = () => {
 
 export const addToSyncQueue = async ({ operation, payload }) => {
   const db = await dbPromise;
-
   const ownerId = getCurrentTokenUserId();
+
   if (!ownerId) {
-    throw new Error("Cannot queue an offline operation without an authenticated user session");
+    throw new Error(
+      "Cannot queue an offline operation without an authenticated user session",
+    );
   }
 
   const queueItem = {
@@ -39,14 +54,24 @@ export const addToSyncQueue = async ({ operation, payload }) => {
   return queueItem;
 };
 
-export const getPendingSyncItems = async (ownerId = getCurrentTokenUserId()) => {
+export const getPendingSyncItems = async (
+  ownerId = getCurrentTokenUserId(),
+) => {
   if (!ownerId) return [];
+
   const db = await dbPromise;
   const items = await db.getAll("syncQueue");
 
   return items
-    .filter((item) => item.status === "pending" && item.ownerId === ownerId)
-    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    .filter(
+      (item) =>
+        item.ownerId === ownerId &&
+        (item.status === "pending" || item.status === "syncing"),
+    )
+    .sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
 };
 
 export const updateSyncItem = async (id, updates) => {
@@ -58,6 +83,8 @@ export const updateSyncItem = async (id, updates) => {
   await db.put("syncQueue", {
     ...item,
     ...updates,
+    id: item.id,
+    ownerId: item.ownerId,
   });
 };
 
@@ -68,5 +95,5 @@ export const removeSyncItem = async (id) => {
 
 export const getSyncQueueCount = async () => {
   const items = await getPendingSyncItems();
-  return items.length;
+  return items.filter((item) => item.status === "pending").length;
 };
