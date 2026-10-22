@@ -30,153 +30,84 @@ import EditVaccinationPHC from "@/pages/phc/EditVaccinationPHC";
 import EditANCPHC from "@/pages/phc/EditANCPHC";
 import ResetUserPassword from "@/pages/admin/ResetUserPassword";
 
-const PlaceHolder = ({ title }) => {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-semibold">{title}</h1>
-    </div>
-  );
-};
+// New pages
+import Profile from "@/pages/profile/Profile";
+import Settings from "@/pages/settings/Settings";
+import PINSetup from "@/pages/pin/PINSetup";
+import PINLogin from "@/pages/pin/PINLogin";
+import SyncStatus from "@/pages/sync/SyncStatus";
+
+const PlaceHolder = ({ title }) => (
+  <div className="flex min-h-screen items-center justify-center">
+    <h1 className="text-2xl font-semibold">{title}</h1>
+  </div>
+);
 
 const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* PUBLIC */}
-
         <Route path="/login" element={<Login />} />
-
-        <Route
-          path="/unauthorized"
-          element={<PlaceHolder title="Unauthorized" />}
-        />
+        <Route path="/pin/login" element={<PINLogin />} />
+        <Route path="/unauthorized" element={<PlaceHolder title="Unauthorized" />} />
 
         {/* AUTHENTICATED */}
-
         <Route element={<ProtectedRoute />}>
           <Route path="/change-password" element={<ChangePassword />} />
-
           <Route path="/complete-profile" element={<CompleteProfile />} />
+          <Route path="/pin/setup" element={<PINSetup />} />
 
           {/* Dashboard Layout */}
           <Route element={<DashboardLayout />}>
-            {/* ASHA */}
 
+            {/* SHARED — all roles */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/sync" element={<SyncStatus />} />
+
+            {/* ASHA */}
             <Route element={<ProtectedRoute allowedRoles={["asha"]} />}>
               <Route path="/asha/dashboard" element={<ASHADashboard />} />
-
               <Route path="/asha/patients" element={<ASHAPatients />} />
-
               <Route path="/asha/patients/add" element={<AddPatient />} />
-
-              <Route
-                path="/asha/patients/:patientId/edit"
-                element={<EditPatient />}
-              />
-
-              <Route
-                path="/asha/patients/:patientId"
-                element={<ASHAPatientDetails />}
-              />
-
-              <Route
-                path="/asha/patients/:patientId/visits/:visitId/edit"
-                element={<EditVisit />}
-              />
-
-              <Route
-                path="/asha/patients/:patientId/visits"
-                element={<ASHAPatientVisits />}
-              />
-
-              <Route
-                path="/asha/patients/:patientId/vaccinations/:vaccinationId/edit"
-                element={<EditVaccination />}
-              />
-
-              <Route
-                path="/asha/patients/:patientId/vaccinations"
-                element={<ASHAPatientVaccinations />}
-              />
-
-              <Route
-                path="/asha/patients/:patientId/anc/:ancId/edit"
-                element={<EditANC />}
-              />
-
-              <Route
-                path="/asha/patients/:patientId/anc"
-                element={<ASHAPatientANC />}
-              />
+              <Route path="/asha/patients/:patientId/edit" element={<EditPatient />} />
+              <Route path="/asha/patients/:patientId" element={<ASHAPatientDetails />} />
+              <Route path="/asha/patients/:patientId/visits/:visitId/edit" element={<EditVisit />} />
+              <Route path="/asha/patients/:patientId/visits" element={<ASHAPatientVisits />} />
+              <Route path="/asha/patients/:patientId/vaccinations/:vaccinationId/edit" element={<EditVaccination />} />
+              <Route path="/asha/patients/:patientId/vaccinations" element={<ASHAPatientVaccinations />} />
+              <Route path="/asha/patients/:patientId/anc/:ancId/edit" element={<EditANC />} />
+              <Route path="/asha/patients/:patientId/anc" element={<ASHAPatientANC />} />
             </Route>
 
             {/* PHC */}
-
             <Route element={<ProtectedRoute allowedRoles={["phc"]} />}>
-              <Route
-                path="/phc/patients/:patientId/edit"
-                element={<EditPatientPHC />}
-              />
-
-              <Route
-                path="/phc/patients/:patientId/visits/:visitId/edit"
-                element={<EditVisitPHC />}
-              />
-
-              <Route
-                path="/phc/patients/:patientId/visits"
-                element={<PHCPatientVisits />}
-              />
-
-              <Route
-                path="/phc/patients/:patientId/vaccinations/:vaccinationId/edit"
-                element={<EditVaccinationPHC />}
-              />
-
-              <Route
-                path="/phc/patients/:patientId/vaccinations"
-                element={<PHCPatientVaccinations />}
-              />
-
-              <Route
-                path="/phc/patients/:patientId/anc/:ancId/edit"
-                element={<EditANCPHC />}
-              />
-
-              <Route
-                path="/phc/patients/:patientId/anc"
-                element={<PHCPatientANC />}
-              />
-
-              <Route
-                path="/phc/patients/:patientId"
-                element={<PHCPatientDetails />}
-              />
-
-              <Route path="/phc/patients" element={<PHCPatients />} />
-
               <Route path="/phc/dashboard" element={<PHCDashboard />} />
+              <Route path="/phc/patients" element={<PHCPatients />} />
               <Route path="/phc/register-asha" element={<RegisterASHA />} />
+              <Route path="/phc/patients/:patientId" element={<PHCPatientDetails />} />
+              <Route path="/phc/patients/:patientId/edit" element={<EditPatientPHC />} />
+              <Route path="/phc/patients/:patientId/visits" element={<PHCPatientVisits />} />
+              <Route path="/phc/patients/:patientId/visits/:visitId/edit" element={<EditVisitPHC />} />
+              <Route path="/phc/patients/:patientId/vaccinations" element={<PHCPatientVaccinations />} />
+              <Route path="/phc/patients/:patientId/vaccinations/:vaccinationId/edit" element={<EditVaccinationPHC />} />
+              <Route path="/phc/patients/:patientId/anc" element={<PHCPatientANC />} />
+              <Route path="/phc/patients/:patientId/anc/:ancId/edit" element={<EditANCPHC />} />
             </Route>
 
             {/* IT ADMIN */}
             <Route element={<ProtectedRoute allowedRoles={["it_admin"]} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
-
-              <Route
-                path="/admin/reset-password"
-                element={<ResetUserPassword />}
-              />
-
               <Route path="/admin/register-phc" element={<RegisterPHC />} />
+              <Route path="/admin/reset-password" element={<ResetUserPassword />} />
             </Route>
+
           </Route>
         </Route>
 
         {/* FALLBACK */}
-
         <Route path="/" element={<Navigate to="/login" replace />} />
-
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
